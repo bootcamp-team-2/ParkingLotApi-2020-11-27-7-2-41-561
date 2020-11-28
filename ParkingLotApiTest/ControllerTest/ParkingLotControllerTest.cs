@@ -77,5 +77,24 @@ namespace ParkingLotApiTest.ControllerTest
             Assert.Equal(0, returnParkingLots.Count);
             Assert.Equal(StatusCodes.Status400BadRequest, (int)response.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_not_create_parkingLot_and_return_error_message_if_location_is_null()
+        {
+            var client = GetClient();
+            ParkingLotDto parkingLotDto = new ParkingLotDto();
+            parkingLotDto.Name = "LiverpoolLot";
+            parkingLotDto.Location = null;
+            parkingLotDto.Capacity = 100;
+            var httpContent = JsonConvert.SerializeObject(parkingLotDto);
+            StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var response = await client.PostAsync("/parkingLots", content);
+            var allParkingLotResponse = await client.GetAsync("/parkingLots");
+            var body = await allParkingLotResponse.Content.ReadAsStringAsync();
+            var returnParkingLots = JsonConvert.DeserializeObject<List<ParkingLotDto>>(body);
+
+            Assert.Equal(0, returnParkingLots.Count);
+            Assert.Equal(StatusCodes.Status400BadRequest, (int)response.StatusCode);
+        }
     }
 }
