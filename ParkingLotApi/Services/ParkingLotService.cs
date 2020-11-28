@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ParkingLotApi.Dtos;
 using ParkingLotApi.Entities;
@@ -39,10 +40,14 @@ namespace ParkingLotApi.Services
                 Location = parkingLotDto.Location,
                 Capacity = parkingLotDto.Capacity,
             };
-
             await this.parkingLotContext.ParkingLots.AddAsync(parkingLotEntity);
             await this.parkingLotContext.SaveChangesAsync();
             return parkingLotEntity.Name;
+        }
+
+        public async Task<bool> IsParkingLotNameExisted(ParkingLotDto parkingLotDto)
+        {
+            return this.parkingLotContext.ParkingLots.Any(parkingLot => parkingLot.Name == parkingLotDto.Name);
         }
     }
 }

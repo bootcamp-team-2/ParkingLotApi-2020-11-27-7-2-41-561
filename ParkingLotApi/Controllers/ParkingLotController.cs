@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ParkingLotApi.Dtos;
+using ParkingLotApi.Repository;
 using ParkingLotApi.Services;
 
 namespace ParkingLotApi.Controllers
@@ -37,6 +38,17 @@ namespace ParkingLotApi.Controllers
         [HttpPost]
         public async Task<ActionResult<ParkingLotDto>> Add(ParkingLotDto parkingLotDto)
         {
+            var isNameExisted = await parkingLotService.IsParkingLotNameExisted(parkingLotDto);
+            if (isNameExisted)
+            {
+                return Conflict(new Dictionary<string, string>() { { "message", "Name of parkingLot exists!" } });
+            }
+
+            if (parkingLotDto.Name == null || parkingLotDto.Location == null)
+            {
+                BadRequest(new Dictionary<string, string>() { { "message", "Name and Location of parkingLot can not be null!" } });
+            }
+
             var id = await this.parkingLotService.AddParkingLot(parkingLotDto);
 
             return CreatedAtAction(nameof(GetById), new { id = id }, parkingLotDto);
