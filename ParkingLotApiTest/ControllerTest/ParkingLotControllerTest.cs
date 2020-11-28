@@ -39,7 +39,7 @@ namespace ParkingLotApiTest.ControllerTest
         }
 
         [Fact]
-        public async Task Should_not_create_parkingLot_if_name_exists()
+        public async Task Should_not_create_parkingLot_and_return_error_message_if_name_exists()
         {
             var client = GetClient();
             ParkingLotDto parkingLotDto = new ParkingLotDto();
@@ -57,6 +57,25 @@ namespace ParkingLotApiTest.ControllerTest
 
             Assert.Equal(1, returnParkingLots.Count);
             Assert.Equal(StatusCodes.Status409Conflict, (int)response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_not_create_parkingLot_and_return_error_message_if_name_is_null()
+        {
+            var client = GetClient();
+            ParkingLotDto parkingLotDto = new ParkingLotDto();
+            parkingLotDto.Name = null;
+            parkingLotDto.Location = "Liverpool";
+            parkingLotDto.Capacity = 100;
+            var httpContent = JsonConvert.SerializeObject(parkingLotDto);
+            StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var response = await client.PostAsync("/parkingLots", content);
+            var allParkingLotResponse = await client.GetAsync("/parkingLots");
+            var body = await allParkingLotResponse.Content.ReadAsStringAsync();
+            var returnParkingLots = JsonConvert.DeserializeObject<List<ParkingLotDto>>(body);
+
+            Assert.Equal(0, returnParkingLots.Count);
+            Assert.Equal(StatusCodes.Status400BadRequest, (int)response.StatusCode);
         }
     }
 }

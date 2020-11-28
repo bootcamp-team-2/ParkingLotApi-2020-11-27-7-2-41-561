@@ -46,7 +46,7 @@ namespace ParkingLotApi.Controllers
 
             if (parkingLotDto.Name == null || parkingLotDto.Location == null)
             {
-                BadRequest(new Dictionary<string, string>() { { "message", "Name and Location of parkingLot can not be null!" } });
+                return BadRequest(new Dictionary<string, string>() { { "message", "Name and Location of parkingLot can not be null!" } });
             }
 
             var id = await this.parkingLotService.AddParkingLot(parkingLotDto);
