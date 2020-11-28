@@ -44,7 +44,7 @@ namespace ParkingLotApi.Controllers
                 return Conflict(new Dictionary<string, string>() { { "message", "Name of parkingLot exists!" } });
             }
 
-            if (parkingLotDto.Name == null || parkingLotDto.Location == null)
+            if (string.IsNullOrEmpty(parkingLotDto.Name) || string.IsNullOrEmpty(parkingLotDto.Location) || parkingLotDto.Capacity < 0)
             {
                 return BadRequest(new Dictionary<string, string>() { { "message", "Name and Location of parkingLot can not be null!" } });
             }
@@ -52,6 +52,14 @@ namespace ParkingLotApi.Controllers
             var id = await this.parkingLotService.AddParkingLot(parkingLotDto);
 
             return CreatedAtAction(nameof(GetById), new { id = id }, parkingLotDto);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            await parkingLotService.DeleteParkingLot(id);
+
+            return this.NoContent();
         }
     }
 }

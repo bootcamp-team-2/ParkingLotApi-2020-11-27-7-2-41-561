@@ -32,7 +32,7 @@ namespace ParkingLotApi.Services
             return new ParkingLotDto(foundParkingLotEntity);
         }
 
-        public async Task<string> AddParkingLot(ParkingLotDto parkingLotDto)
+        public async Task<int> AddParkingLot(ParkingLotDto parkingLotDto)
         {
             ParkingLotEntity parkingLotEntity = new ParkingLotEntity()
             {
@@ -42,12 +42,20 @@ namespace ParkingLotApi.Services
             };
             await this.parkingLotContext.ParkingLots.AddAsync(parkingLotEntity);
             await this.parkingLotContext.SaveChangesAsync();
-            return parkingLotEntity.Name;
+            return parkingLotEntity.Id;
         }
 
         public async Task<bool> IsParkingLotNameExisted(ParkingLotDto parkingLotDto)
         {
             return this.parkingLotContext.ParkingLots.Any(parkingLot => parkingLot.Name == parkingLotDto.Name);
+        }
+
+        public async Task DeleteParkingLot(int id)
+        {
+            var foundParkingLot = await this.parkingLotContext.ParkingLots
+                .FirstOrDefaultAsync(parkingLot => parkingLot.Id == id);
+            this.parkingLotContext.ParkingLots.Remove(foundParkingLot);
+            await this.parkingLotContext.SaveChangesAsync();
         }
     }
 }
