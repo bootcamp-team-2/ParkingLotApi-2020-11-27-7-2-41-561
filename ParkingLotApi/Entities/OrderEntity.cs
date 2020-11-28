@@ -7,6 +7,12 @@ using System.Threading.Tasks;
 
 namespace ParkingLotApi.Entities
 {
+    public enum OrderStatus : int
+    {
+        Open,
+        Close
+    }
+
     public class OrderEntity
     {
         [Key]
@@ -15,6 +21,6 @@ namespace ParkingLotApi.Entities
         public string PlateNumber { get; set; }
         public DateTimeOffset CreationTimeOffset { get; set; }
         public DateTimeOffset CloseTimeOffset { get; set; }
-        public bool Status { get; set; }
+        public OrderStatus Status { get; set; }
     }
 }

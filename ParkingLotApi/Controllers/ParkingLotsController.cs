@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ParkingLotApi.Dtos;
+using ParkingLotApi.Services;
 
 namespace ParkingLotApi.Controllers
 {
@@ -10,36 +12,73 @@ namespace ParkingLotApi.Controllers
     [ApiController]
     public class ParkingLotsController : ControllerBase
     {
-        // GET: api/<ParkingLotsController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly IParkingLotService parkingLotService;
+        public ParkingLotsController(IParkingLotService parkingLotService)
         {
-            return new string[] { "value1", "value2" };
+            this.parkingLotService = parkingLotService;
         }
 
-        // GET api/<ParkingLotsController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<ParkingLotsController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<ActionResult<ParkingLotDto>> AddAsync(ParkingLotDto parkingLotDto)
         {
+            var createdParkingLotId = await this.parkingLotService.AddAsync(parkingLotDto);
+            if (string.IsNullOrEmpty(createdParkingLotId))
+            {
+                return BadRequest();
+            }
+
+            return CreatedAtAction(nameof(GetAsync), new { id = createdParkingLotId }, parkingLotDto);
         }
 
-        // PUT api/<ParkingLotsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ParkingLotDto>>> GetAllAsync(string name, int limit, int offset)
         {
+            var searchedParkingLots = await this.parkingLotService.GetAllAsync(name, limit, offset);
+            return Ok(searchedParkingLots);
         }
 
-        // DELETE api/<ParkingLotsController>/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ParkingLotDto>> GetAsync(string id)
+        {
+            var searchedParkingLot = await this.parkingLotService.GetAsync(id);
+
+            if (searchedParkingLot == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(searchedParkingLot);
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> UpdateAsync(string id, ParkingLotUpdateDto parkingLotUpdateDto)
+        {
+            if (parkingLotUpdateDto.Capacity < 0)
+            {
+                return BadRequest();
+            }
+
+            var parkingLotToUpdate = await this.parkingLotService.GetAsync(id);
+            if (parkingLotToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            await this.parkingLotService.Update(id, parkingLotUpdateDto);
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<ActionResult> DeleteAsync(string id)
         {
+            var parkingLotToUpdate = await this.parkingLotService.GetAsync(id);
+            if (parkingLotToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            await this.parkingLotService.Delete(id);
+            return NoContent();
         }
     }
 }
