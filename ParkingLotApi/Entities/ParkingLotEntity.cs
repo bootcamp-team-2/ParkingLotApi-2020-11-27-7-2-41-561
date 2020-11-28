@@ -2,12 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ParkingLotApi.Dtos;
 
 namespace ParkingLotApi.Entities
 {
     public class ParkingLotEntity
     {
-        public string Id { get; set; }
+        public ParkingLotEntity()
+        {
+        }
+
+        public ParkingLotEntity(ParkingLotDto parkingLotDto)
+        {
+            Name = parkingLotDto.Name;
+            Capacity = parkingLotDto.Capacity;
+            Location = parkingLotDto.Location;
+        }
+
+        public string Id { get; set; } = Guid.NewGuid().ToString("N");
         public string Name { get; set; }
         public int Capacity { get; set; }
         public string Location { get; set; }
