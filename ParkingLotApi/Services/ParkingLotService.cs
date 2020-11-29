@@ -61,10 +61,15 @@ namespace ParkingLotApi.Services
 
         public async Task<List<ParkingLotDto>> GetByPage(int pageIndex, int pageSize = 15)
         {
-            var parkingLots = await parkingLotDbContext.ParkingLots.ToListAsync();
+            //var parkingLots = await parkingLotDbContext.ParkingLots.ToListAsync();
+            //var startIndex = (pageIndex - 1) * pageSize;
+            //return parkingLots.GetRange(startIndex, pageSize)
+            //    .Select(parkingLotEntity => new ParkingLotDto(parkingLotEntity)).ToList();
+
             var startIndex = (pageIndex - 1) * pageSize;
-            return parkingLots.GetRange(startIndex, pageSize)
-                .Select(parkingLotEntity => new ParkingLotDto(parkingLotEntity)).ToList();
+            var extractedParkingLots = await parkingLotDbContext.ParkingLots.Skip(startIndex).Take(pageSize)
+                .Select(parkingLotEntity => new ParkingLotDto(parkingLotEntity)).ToListAsync();
+            return extractedParkingLots;
         }
     }
 }

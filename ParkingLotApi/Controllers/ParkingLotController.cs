@@ -36,7 +36,7 @@ namespace ParkingLotApi.Controllers
         [HttpGet("{pageIndex}&{pageSize}")]
         public async Task<ActionResult<List<ParkingLotDto>>> GetByPage(int pageIndex, int pageSize = 15)
         {
-            var parkingLotDtos = this.parkingLotService.GetByPage(pageIndex, pageSize);
+            var parkingLotDtos = await this.parkingLotService.GetByPage(pageIndex, pageSize);
             return Ok(parkingLotDtos);
         }
 

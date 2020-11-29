@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -22,7 +23,7 @@ namespace ParkingLotApiTest.ControllerTest
         }
 
         [Fact]
-        public async Task Should_Add_New_Factory_Success()
+        public async Task Should_Add_New_Parkinglot_Success()
         {
             // Given
             var client = GetClient();
@@ -38,7 +39,6 @@ namespace ParkingLotApiTest.ControllerTest
 
             // Then
             var response = await client.PostAsync("/parkingLots", content);
-            await client.DeleteAsync(response.Headers.Location);
             var allParkingLotsResponse = await client.GetAsync("/parkingLots");
             var body = await allParkingLotsResponse.Content.ReadAsStringAsync();
 
@@ -48,7 +48,7 @@ namespace ParkingLotApiTest.ControllerTest
         }
 
         [Fact]
-        public async Task Should_Delete_Factory_Success()
+        public async Task Should_Delete_Parkinglot_Success()
         {
             // Given
             var client = GetClient();
@@ -71,6 +71,47 @@ namespace ParkingLotApiTest.ControllerTest
 
             //Assert.Equal(0, parkingLotsReceived.Count);
             Assert.Empty(parkingLotsReceived);
+        }
+
+        [Fact]
+        public async Task Should_Get_ParkingLot_InPages_Success()
+        {
+            // Given
+            var client = GetClient();
+
+            var parkingLotList = GenerateParkingLot(40);
+            var addActionList = parkingLotList.Select(parkingLot =>
+            {
+                var httpContent = JsonConvert.SerializeObject(parkingLot);
+                StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+                var response = client.PostAsync("/parkingLots", content);
+                return response;
+            });
+
+            // When
+            int pageSize = 15;
+            int totalPage = addActionList.Count() / pageSize;
+            int pageIndex = 1;
+
+            var parkingLotsInPages = await client.GetAsync($"/parkingLots/{pageIndex}&{pageSize}");
+            var body = await parkingLotsInPages.Content.ReadAsStringAsync();
+            List<ParkingLotDto> parkingLotsReceived = JsonConvert.DeserializeObject<List<ParkingLotDto>>(body);
+            // Then
+            Assert.Equal(pageSize, parkingLotsReceived.Count);
+        }
+
+        public List<ParkingLotDto> GenerateParkingLot(int count)
+        {
+            var arrayGenerated = Enumerable.Range(0, count).ToList();
+            var parkingLotList = arrayGenerated.Select(index =>
+            {
+                var newLot = new ParkingLotDto();
+                newLot.Name = "ParkingLot_" + index;
+                newLot.Capacity = index + 1;
+                newLot.Location = "District_" + index;
+                return newLot;
+            }).ToList();
+            return parkingLotList;
         }
     }
 }
