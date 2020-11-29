@@ -12,7 +12,7 @@ namespace ParkingLotApi.Services
 {
     public interface IParkingLotService
     {
-        public Task<string> AddAsync(ParkingLotDto parkingLotDto);
+        public Task<(string, string)> AddAsync(ParkingLotDto parkingLotDto);
         public Task<ParkingLotDto> SearchByNameAsync(string lotName);
         public Task<List<ParkingLotDto>> GetAllAsync(int? limit, int? offset);
         public Task<ParkingLotDto> GetAsync(string id);
@@ -29,22 +29,22 @@ namespace ParkingLotApi.Services
             this.parkingLotContext = parkingLotContext;
         }
 
-        public async Task<string> AddAsync(ParkingLotDto parkingLotDto)
+        public async Task<(string, string)> AddAsync(ParkingLotDto parkingLotDto)
         {
             var parkingLot = new ParkingLotEntity(parkingLotDto);
             if (parkingLotContext.ParkingLots.Any(p => p.Name == parkingLot.Name))
             {
-                return string.Empty;
+                return (string.Empty, "the parking lot is already created");
             }
 
             if (parkingLotDto.Capacity < 0)
             {
-                return string.Empty;
+                return (string.Empty, "the capacity should not be minus");
             }
 
             await parkingLotContext.ParkingLots.AddAsync(parkingLot);
             await parkingLotContext.SaveChangesAsync();
-            return parkingLot.Id;
+            return (parkingLot.Id, string.Empty);
         }
 
         public async Task<ParkingLotDto> SearchByNameAsync(string lotName)

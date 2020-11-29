@@ -30,10 +30,12 @@ namespace ParkingLotApi.Controllers
         [HttpPost]
         public async Task<ActionResult<OrderDto>> AddAsync(OrderCreateDto orderCreateDto)
         {
-            var orderCreated = await this.orderService.AddAsync(orderCreateDto);
+            var orderCreatedWithMessage = await this.orderService.AddAsync(orderCreateDto);
+            var orderCreated = orderCreatedWithMessage.Item1;
+            var errorMessage = orderCreatedWithMessage.Item2;
             if (orderCreated == null)
             {
-                return BadRequest();
+                return BadRequest(new Dictionary<string, string>() { { "error", errorMessage } });
             }
 
             return CreatedAtAction(nameof(GetAsync),
@@ -46,7 +48,7 @@ namespace ParkingLotApi.Controllers
             var searchedOrder = await this.orderService.GetAsync(orderNumber);
             if (searchedOrder == null)
             {
-                return NotFound();
+                return NotFound(new Dictionary<string, string>() { { "error", "the order is not found" } });
             }
 
             return Ok(searchedOrder);
@@ -92,7 +94,7 @@ namespace ParkingLotApi.Controllers
             var orderToUpdate = await this.orderService.GetAsync(orderNumber);
             if (orderToUpdate == null)
             {
-                return NotFound();
+                return NotFound(new Dictionary<string, string>() { { "error", "the order is not found" } });
             }
 
             await this.orderService.UpdateAsync(orderNumber, orderUpdateDto);

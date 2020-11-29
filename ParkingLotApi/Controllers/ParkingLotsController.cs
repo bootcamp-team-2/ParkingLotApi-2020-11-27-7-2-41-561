@@ -23,10 +23,12 @@ namespace ParkingLotApi.Controllers
         [HttpPost]
         public async Task<ActionResult<ParkingLotDto>> AddAsync(ParkingLotDto parkingLotDto)
         {
-            var createdParkingLotId = await this.parkingLotService.AddAsync(parkingLotDto);
+            var createdParkingLotIdWithMessage = await this.parkingLotService.AddAsync(parkingLotDto);
+            var createdParkingLotId = createdParkingLotIdWithMessage.Item1;
+            var errorMessage = createdParkingLotIdWithMessage.Item2;
             if (string.IsNullOrEmpty(createdParkingLotId))
             {
-                return BadRequest();
+                return BadRequest(new Dictionary<string, string>() { { "error", errorMessage } });
             }
 
             return CreatedAtAction(nameof(GetAsync), new { id = createdParkingLotId }, parkingLotDto);
@@ -69,7 +71,7 @@ namespace ParkingLotApi.Controllers
         {
             if (parkingLotUpdateDto.Capacity < 0)
             {
-                return BadRequest();
+                return BadRequest(new Dictionary<string, string>() { { "error", "the capacity should not be minus" } });
             }
 
             var parkingLotToUpdate = await this.parkingLotService.GetAsync(id);

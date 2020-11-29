@@ -17,6 +17,7 @@ namespace ParkingLotApiTest.ControllerTest
     public class ParkingLotsControllerTests : TestBase
     {
         private const string RootUri = "api/parkinglots";
+        private const string RootUriForOrders = "api/orders";
         public ParkingLotsControllerTests(CustomWebApplicationFactory<Startup> factory) : base(factory)
         {
         }
@@ -182,6 +183,38 @@ namespace ParkingLotApiTest.ControllerTest
             getResponse.EnsureSuccessStatusCode();
             var returnedParkingLots = await DeserializeResponseBodyAsync<List<ParkingLotDto>>(getResponse);
             Assert.Empty(returnedParkingLots);
+        }
+
+        [Fact]
+        public async Task Should_not_delete_parking_lot_when_orders_are_not_all_closed()
+        {
+            var client = GetClient();
+            var parkingLot = SeedParkingLot();
+            var parkingLotContent = SerializeRequestBody(parkingLot);
+            var createResponse = await client.PostAsync(RootUri, parkingLotContent);
+            createResponse.EnsureSuccessStatusCode();
+
+            var newOrder = SeedOrder();
+            var orderContent = SerializeRequestBody(newOrder);
+            var createFirstOrderResponse = await client.PostAsync(RootUriForOrders, orderContent);
+            createFirstOrderResponse.EnsureSuccessStatusCode();
+
+            var deleteResponse = await client.DeleteAsync(createResponse.Headers.Location);
+
+            var getResponse = await client.GetAsync(RootUri);
+            getResponse.EnsureSuccessStatusCode();
+            var returnedParkingLots = await DeserializeResponseBodyAsync<List<ParkingLotDto>>(getResponse);
+            Assert.Single(returnedParkingLots);
+            Assert.Equal(parkingLot, returnedParkingLots[0]);
+        }
+
+        private OrderCreateDto SeedOrder()
+        {
+            return new OrderCreateDto()
+            {
+                ParkingLotName = "first",
+                PlateNumber = "JX123",
+            };
         }
 
         private ParkingLotDto SeedParkingLot()
