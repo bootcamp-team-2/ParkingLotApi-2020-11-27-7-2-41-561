@@ -36,6 +36,11 @@ namespace ParkingLotApi.Services
                 return string.Empty;
             }
 
+            if (parkingLotDto.Capacity < 0)
+            {
+                return string.Empty;
+            }
+
             await parkingLotContext.ParkingLots.AddAsync(parkingLot);
             await parkingLotContext.SaveChangesAsync();
             return parkingLot.Id;

@@ -40,6 +40,24 @@ namespace ParkingLotApiTest.ControllerTest
         }
 
         [Fact]
+        public async Task Should_not_create_parking_lot_when_add_new_parking_lot_with_negative_capacity()
+        {
+            var client = GetClient();
+            var parkingLot = SeedParkingLot();
+            parkingLot.Capacity = -1;
+            var parkingLotContent = SerializeRequestBody(parkingLot);
+
+            var createResponse = await client.PostAsync(RootUri, parkingLotContent);
+
+            Assert.False(createResponse.IsSuccessStatusCode);
+
+            var getResponse = await client.GetAsync(RootUri);
+            getResponse.EnsureSuccessStatusCode();
+            var allParkingLots = await DeserializeResponseBodyAsync<List<ParkingLotDto>>(getResponse);
+            Assert.Empty(allParkingLots);
+        }
+
+        [Fact]
         public async Task Should_return_parking_lot_when_get_by_id()
         {
             var client = GetClient();
