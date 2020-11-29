@@ -78,7 +78,13 @@ namespace ParkingLotApi.Services
 
         public async Task Update(string id, ParkingLotUpdateDto parkingLotUpdateDto)
         {
-            throw new NotImplementedException();
+            var parkingLotToUpdate = this.parkingLotContext.ParkingLots.FirstOrDefault(lot => lot.Id == id);
+            if (parkingLotToUpdate != null)
+            {
+                parkingLotToUpdate.Capacity = parkingLotUpdateDto.Capacity;
+            }
+
+            await this.parkingLotContext.SaveChangesAsync();
         }
     }
 }
