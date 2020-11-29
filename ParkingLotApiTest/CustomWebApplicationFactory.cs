@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -23,8 +24,8 @@ namespace ParkingLotApiTest
 
                 services.AddDbContext<ParkingLotContext>(options =>
                 {
-                    options.UseInMemoryDatabase("InMemoryDbForTesting");
-                });
+                    options.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                }, ServiceLifetime.Singleton);
 
                 var sp = services.BuildServiceProvider();
 

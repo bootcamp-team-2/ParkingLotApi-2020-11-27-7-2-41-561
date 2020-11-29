@@ -70,7 +70,35 @@ namespace ParkingLotApiTest.ControllerTest
 
             getResponse.EnsureSuccessStatusCode();
             var returnedParkingLots = await DeserializeResponseBodyAsync<List<ParkingLotDto>>(getResponse);
-            Assert.Equal(parkingLots, returnedParkingLots);
+            Assert.Equal(2, returnedParkingLots.Count);
+            Assert.Equal(parkingLots[0], returnedParkingLots.First(lot => lot.Name == "first"));
+            Assert.Equal(parkingLots[1], returnedParkingLots.First(lot => lot.Name == "second"));
+        }
+
+        [Fact]
+        public async Task Should_return_parking_lots_in_pages_when_get_using_paging_query()
+        {
+            var client = GetClient();
+            var parkingLots = SeedParkingLots();
+            foreach (var lot in parkingLots)
+            {
+                var content = SerializeRequestBody(lot);
+                await client.PostAsync(RootUri, content);
+            }
+
+            var getResponse = await client.GetAsync($"{RootUri}?limit=1&offset=0");
+
+            getResponse.EnsureSuccessStatusCode();
+            var returnedParkingLots = await DeserializeResponseBodyAsync<List<ParkingLotDto>>(getResponse);
+            Assert.Single(returnedParkingLots);
+            Assert.Equal(parkingLots[0], returnedParkingLots[0]);
+
+            var getResponse2 = await client.GetAsync($"{RootUri}?limit=1&offset=1");
+
+            getResponse2.EnsureSuccessStatusCode();
+            var returnedParkingLots2 = await DeserializeResponseBodyAsync<List<ParkingLotDto>>(getResponse2);
+            Assert.Single(returnedParkingLots2);
+            Assert.Equal(parkingLots[1], returnedParkingLots2[0]);
         }
 
         private StringContent SerializeRequestBody(object obj)
