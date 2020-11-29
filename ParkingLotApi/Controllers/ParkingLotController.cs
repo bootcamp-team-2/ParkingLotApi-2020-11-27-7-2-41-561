@@ -74,5 +74,13 @@ namespace ParkingLotApi.Controllers
 
             return this.NoContent();
         }
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult<ParkingLotDto>> Update(int id, UpdateParkingLotDto updateParkingLotDto)
+        {
+            var parkinglot = await this.parkingLotService.UpdateParkingLot(id, updateParkingLotDto.Capacity);
+
+            return Ok(parkinglot);
+        }
     }
 }

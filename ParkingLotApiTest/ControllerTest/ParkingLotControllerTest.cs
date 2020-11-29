@@ -135,7 +135,7 @@ namespace ParkingLotApiTest.ControllerTest
         }
 
         [Fact]
-        public async Task Should_get_15_parkingLots_on_one_page()
+        public async Task Should_get_parkingLots_on_one_page_according_to_page_size_and_start_page()
         {
             var client = GetClient();
 
@@ -162,6 +162,30 @@ namespace ParkingLotApiTest.ControllerTest
             var returnParkingLots = JsonConvert.DeserializeObject<List<ParkingLotDto>>(body);
 
             Assert.Equal(15, returnParkingLots.Count);
+        }
+
+        [Fact]
+        public async Task Should_update_parkingLot_capacity_successfully()
+        {
+            var client = GetClient();
+            ParkingLotDto parkingLotDto = new ParkingLotDto();
+            parkingLotDto.Name = "LiverpoolLot";
+            parkingLotDto.Location = "Liverpool";
+            parkingLotDto.Capacity = 100;
+            var httpContent = JsonConvert.SerializeObject(parkingLotDto);
+            StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var postResponse = await client.PostAsync("/parkingLots", content);
+
+            UpdateParkingLotDto updateParkingLotDto = new UpdateParkingLotDto();
+            updateParkingLotDto.Capacity = 300;
+            var httpContent2 = JsonConvert.SerializeObject(updateParkingLotDto);
+            StringContent content2 = new StringContent(httpContent2, Encoding.UTF8, MediaTypeNames.Application.Json);
+            await client.PatchAsync(postResponse.Headers.Location, content2);
+
+            var updateParkingLotResponse = await client.GetAsync(postResponse.Headers.Location);
+            var body = await updateParkingLotResponse.Content.ReadAsStringAsync();
+            var returnUpdateParkingLot = JsonConvert.DeserializeObject<ParkingLotDto>(body);
+            Assert.Equal(300, returnUpdateParkingLot.Capacity);
         }
     }
 }

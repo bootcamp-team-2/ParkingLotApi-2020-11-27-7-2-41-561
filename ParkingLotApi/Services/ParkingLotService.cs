@@ -40,6 +40,18 @@ namespace ParkingLotApi.Services
             return new ParkingLotDto(foundParkingLotEntity);
         }
 
+        public async Task<ParkingLotDto> UpdateParkingLot(int id, int capacity)
+        { 
+            var foundParkingLotEntity = await this.parkingLotContext.ParkingLots
+                .FirstOrDefaultAsync(parkingLotEntity => parkingLotEntity.Id == id);
+           // this.parkingLotContext.ParkingLots.Remove(foundParkingLotEntity);
+            foundParkingLotEntity.Capacity = capacity;
+            this.parkingLotContext.ParkingLots.Update(foundParkingLotEntity);  
+            //AddAsync(foundParkingLotEntity);
+            await this.parkingLotContext.SaveChangesAsync();
+            return new ParkingLotDto(foundParkingLotEntity);
+        }
+
         public async Task<int> AddParkingLot(ParkingLotDto parkingLotDto)
         {
             ParkingLotEntity parkingLotEntity = new ParkingLotEntity()
