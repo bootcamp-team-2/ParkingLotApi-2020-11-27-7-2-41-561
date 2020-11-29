@@ -30,6 +30,27 @@ namespace ParkingLotApiTest.ControllerTest
             createResponse.EnsureSuccessStatusCode();
             var returnedParkingLot = await DeserializeResponseBody(createResponse);
             Assert.Equal(parkingLot, returnedParkingLot);
+
+            var getResponse = await client.GetAsync(createResponse.Headers.Location);
+            getResponse.EnsureSuccessStatusCode();
+            var newParkingLot = await DeserializeResponseBody(getResponse);
+            Assert.Equal(parkingLot, newParkingLot);
+        }
+
+        [Fact]
+        public async Task Should_return_parking_lot_when_get_by_id()
+        {
+            var client = GetClient();
+            var parkingLot = SeedData();
+            var parkingLotContent = SerializeRequestBody(parkingLot);
+
+            var createResponse = await client.PostAsync($"/api/parkinglots", parkingLotContent);
+            createResponse.EnsureSuccessStatusCode();
+            var getResponse = await client.GetAsync(createResponse.Headers.Location);
+
+            getResponse.EnsureSuccessStatusCode();
+            var newParkingLot = await DeserializeResponseBody(getResponse);
+            Assert.Equal(parkingLot, newParkingLot);
         }
 
         private StringContent SerializeRequestBody(ParkingLotDto parkingLotDto)
