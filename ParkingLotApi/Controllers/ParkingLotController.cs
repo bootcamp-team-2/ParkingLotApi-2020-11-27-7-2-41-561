@@ -19,6 +19,13 @@ namespace ParkingLotApi.Controllers
             this.parkingLotService = parkingLotService;
         }
 
+        [HttpGet]
+        public async Task<ActionResult<List<ParkingLotDto>>> GetAll()
+        {
+            List<ParkingLotDto> parkingLotDtos = await this.parkingLotService.GetAll();
+            return Ok(parkingLotDtos);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<ParkingLotDto>> GetById(int id)
         {
@@ -26,11 +33,25 @@ namespace ParkingLotApi.Controllers
             return Ok(parkingLotDto);
         }
 
+        [HttpGet("{pageIndex}&{pageSize}")]
+        public async Task<ActionResult<List<ParkingLotDto>>> GetByPage(int pageIndex, int pageSize = 15)
+        {
+            var parkingLotDtos = this.parkingLotService.GetByPage(pageIndex, pageSize);
+            return Ok(parkingLotDtos);
+        }
+
         [HttpPost]
         public async Task<ActionResult<ParkingLotDto>> AddParkingLot(ParkingLotDto parkingLotDto)
         {
             var id = await parkingLotService.AddParkingLot(parkingLotDto);
             return CreatedAtAction(nameof(GetById), new { id = id }, parkingLotDto);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            await this.parkingLotService.DeleteParkingLot(id);
+            return this.NoContent();
         }
     }
 }

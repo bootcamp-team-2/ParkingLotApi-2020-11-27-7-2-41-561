@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Mime;
@@ -13,6 +14,7 @@ using Xunit;
 
 namespace ParkingLotApiTest.ControllerTest
 {
+    [Collection("IntegrationTest")]
     public class ParkingLotControllerTest : TestBase
     {
         public ParkingLotControllerTest(CustomWebApplicationFactory<Startup> factory) : base(factory)
@@ -22,26 +24,53 @@ namespace ParkingLotApiTest.ControllerTest
         [Fact]
         public async Task Should_Add_New_Factory_Success()
         {
+            // Given
             var client = GetClient();
 
-            ParkingLotDto parkignLotDto = new ParkingLotDto();
-            parkignLotDto.Name = "ParkingLot_A";
-            parkignLotDto.Capacity = 30;
-            parkignLotDto.Location = "Beijing";
+            ParkingLotDto parkingLotDto = new ParkingLotDto();
+            parkingLotDto.Name = "ParkingLot_A";
+            parkingLotDto.Capacity = 30;
+            parkingLotDto.Location = "Beijing";
 
-            var httpContent = JsonConvert.SerializeObject(parkignLotDto);
+            // When
+            var httpContent = JsonConvert.SerializeObject(parkingLotDto);
             StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
-            await client.PostAsync("/parkingLots", content);
 
-            var scope = Factory.Services.CreateScope();
-            var scopedServices = scope.ServiceProvider;
-            var context = scopedServices.GetRequiredService<ParkingLotDbContext>();
-            Assert.Equal(1, context.ParkingLots.ToList().Count);
+            // Then
+            var response = await client.PostAsync("/parkingLots", content);
+            await client.DeleteAsync(response.Headers.Location);
+            var allParkingLotsResponse = await client.GetAsync("/parkingLots");
+            var body = await allParkingLotsResponse.Content.ReadAsStringAsync();
 
-            var firstParkingLot = await context.ParkingLots.FirstOrDefaultAsync();
-            Assert.Equal(parkignLotDto.Name, firstParkingLot.Name);
-            Assert.Equal(parkignLotDto.Capacity, firstParkingLot.Capacity);
-            Assert.Equal(parkignLotDto.Location, firstParkingLot.Location);
+            var returnCompanies = JsonConvert.DeserializeObject<List<ParkingLotDto>>(body);
+
+            Assert.Equal(1, returnCompanies.Count);
+        }
+
+        [Fact]
+        public async Task Should_Delete_Factory_Success()
+        {
+            // Given
+            var client = GetClient();
+
+            ParkingLotDto parkingLotDto = new ParkingLotDto();
+            parkingLotDto.Name = "ParkingLot_A";
+            parkingLotDto.Capacity = 30;
+            parkingLotDto.Location = "Beijing";
+
+            // When
+            var httpContent = JsonConvert.SerializeObject(parkingLotDto);
+            StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var response = await client.PostAsync("/parkingLots", content);
+            await client.DeleteAsync(response.Headers.Location);
+
+            // Then
+            var allParkingLots = await client.GetAsync("/parkingLots");
+            var body = await allParkingLots.Content.ReadAsStringAsync();
+            var parkingLotsReceived = JsonConvert.DeserializeObject<List<ParkingLotDto>>(body);
+
+            //Assert.Equal(0, parkingLotsReceived.Count);
+            Assert.Empty(parkingLotsReceived);
         }
     }
 }

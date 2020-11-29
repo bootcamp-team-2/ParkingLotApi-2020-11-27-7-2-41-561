@@ -7,6 +7,7 @@ using Xunit;
 
 namespace ParkingLotApiTest
 {
+    [Collection("IntegrationTest")]
     public class TestBase : IClassFixture<CustomWebApplicationFactory<Startup>>, IDisposable
     {
         public TestBase(CustomWebApplicationFactory<Startup> factory)
@@ -22,8 +23,7 @@ namespace ParkingLotApiTest
             var scopedServices = scope.ServiceProvider;
             var context = scopedServices.GetRequiredService<ParkingLotDbContext>();
 
-            // Use for clearing dbcontext content
-            //context.Companies.RemoveRange(context.Companies);
+            context.ParkingLots.RemoveRange(context.ParkingLots);
 
             context.SaveChanges();
         }

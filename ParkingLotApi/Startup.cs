@@ -51,10 +51,7 @@ namespace ParkingLotApi
                 {
                     if (context.Database.ProviderName.ToLower().Contains("mysql"))
                     {
-                        if (context.Database.ProviderName.ToLower().Contains("mysql"))
-                        {
-                            context.Database.Migrate();
-                        }
+                        context.Database.Migrate();
                     }
                 }
             }
