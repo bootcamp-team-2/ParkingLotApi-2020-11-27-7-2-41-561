@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -96,5 +98,22 @@ namespace ParkingLotApiTest.ControllerTest
         //    await parkingLotService.DeleteParkingLot("000");
         //    Assert.Equal(1, context.ParkingLots.Count());
         //}
+
+        [Fact]
+        public async Task Should_get_parkingLots_when_give_pageIndex_Test()
+        {
+            var scope = Factory.Services.CreateScope();
+            var scopeServices = scope.ServiceProvider;
+            ParkingLotDbContext context = scopeServices.GetRequiredService<ParkingLotDbContext>();
+            ParkingLotDto parkingLot1 = new ParkingLotDto();
+            parkingLot1.Name = "345";
+            parkingLot1.Capacity = 0;
+            parkingLot1.Location = "southRoad";
+
+            ParkingLotService parkingLotService = new ParkingLotService(context);
+            var name1 = await parkingLotService.AddParkingLot(parkingLot1);
+            var actualParkingLots = await parkingLotService.GetParkingLotByPageIndex(2);
+            Assert.Equal(new List<ParkingLotDto>(), actualParkingLots);
+        }
     }
 }

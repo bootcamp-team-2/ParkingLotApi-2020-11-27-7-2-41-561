@@ -43,5 +43,15 @@ namespace ParkingLotApi.Service
         {
             return this.parkingLotDbContext.ParkingLots.Any(item => item.Name == name);
         }
+
+        public async Task<IList<ParkingLotDto>> GetParkingLotByPageIndex(int pageIndex)
+        {
+            const int pageSize = 15;
+            return parkingLotDbContext.ParkingLots
+                .Skip(pageSize * (pageIndex - 1))
+                .Take(pageSize)
+                .Select(item => new ParkingLotDto(item))
+                .ToList();
+        }
     }
 }

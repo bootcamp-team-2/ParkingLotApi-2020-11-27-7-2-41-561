@@ -100,5 +100,37 @@ namespace ParkingLotApiTest.ControllerTest
         //    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         //    Assert.Equal("capacity can not be less than 0", errorMessage);
         //}
+
+        //[Fact]
+        //public async Task Should_Delete_ParkingLot_Give_Existed_Name()
+        //{
+        //    var client = GetClient();
+        //    ParkingLotDto paringLotDto = new ParkingLotDto();
+        //    paringLotDto.Name = "123";
+        //    paringLotDto.Capacity = 0;
+        //    paringLotDto.Location = "southRoad";
+        //    var requestBody = SerializeParkingLot(paringLotDto);
+        //    await client.PostAsync("/ParkingLots", requestBody);
+
+        //    var postResponse = await client.DeleteAsync($"/ParkingLots/{paringLotDto.Name}");
+
+        //    Assert.Equal(HttpStatusCode.NoContent, postResponse.StatusCode);
+        //}
+
+        //[Fact]
+        //public async Task Should_Return_Not_Found_Given_Not_Existed_Name()
+        //{
+        //    var client = GetClient();
+        //    ParkingLotDto paringLotDto = new ParkingLotDto();
+        //    paringLotDto.Name = "123";
+        //    paringLotDto.Capacity = 0;
+        //    paringLotDto.Location = "southRoad";
+        //    var requestBody = SerializeParkingLot(paringLotDto);
+        //    await client.PostAsync("/ParkingLots", requestBody);
+
+        //    var postResponse = await client.DeleteAsync($"/ParkingLots/345");
+
+        //    Assert.Equal(HttpStatusCode.NotFound, postResponse.StatusCode);
+        //}
     }
 }
