@@ -187,5 +187,30 @@ namespace ParkingLotApiTest.ControllerTest
             var returnUpdateParkingLot = JsonConvert.DeserializeObject<ParkingLotDto>(body);
             Assert.Equal(300, returnUpdateParkingLot.Capacity);
         }
+
+        [Fact]
+        public async Task Should_not_update_parkingLot_capacity_if_it_is_less_than_zero()
+        {
+            var client = GetClient();
+            ParkingLotDto parkingLotDto = new ParkingLotDto();
+            parkingLotDto.Name = "LiverpoolLot";
+            parkingLotDto.Location = "Liverpool";
+            parkingLotDto.Capacity = 100;
+            var httpContent = JsonConvert.SerializeObject(parkingLotDto);
+            StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var postResponse = await client.PostAsync("/parkingLots", content);
+
+            UpdateParkingLotDto updateParkingLotDto = new UpdateParkingLotDto();
+            updateParkingLotDto.Capacity = -2;
+            var httpContent2 = JsonConvert.SerializeObject(updateParkingLotDto);
+            StringContent content2 = new StringContent(httpContent2, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var patchResponse = await client.PatchAsync(postResponse.Headers.Location, content2);
+
+            var updateParkingLotResponse = await client.GetAsync(postResponse.Headers.Location);
+            var body = await updateParkingLotResponse.Content.ReadAsStringAsync();
+            var returnUpdateParkingLot = JsonConvert.DeserializeObject<ParkingLotDto>(body);
+            Assert.Equal(100, returnUpdateParkingLot.Capacity);
+            Assert.Equal(StatusCodes.Status400BadRequest, (int)patchResponse.StatusCode);
+        }
     }
 }

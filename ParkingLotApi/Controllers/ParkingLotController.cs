@@ -78,6 +78,11 @@ namespace ParkingLotApi.Controllers
         [HttpPatch("{id}")]
         public async Task<ActionResult<ParkingLotDto>> Update(int id, UpdateParkingLotDto updateParkingLotDto)
         {
+            if (updateParkingLotDto.Capacity < 0)
+            {
+                return BadRequest(new Dictionary<string, string>() { { "message", "Capacity of parkingLot can not be less than zero!" } });
+            }
+
             var parkinglot = await this.parkingLotService.UpdateParkingLot(id, updateParkingLotDto.Capacity);
 
             return Ok(parkinglot);
