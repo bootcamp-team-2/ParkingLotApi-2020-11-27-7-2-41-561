@@ -124,6 +124,29 @@ namespace ParkingLotApiTest.ControllerTest
             Assert.Equal(lotUpdate.Capacity, newParkingLot.Capacity);
         }
 
+        [Fact]
+        public async Task Should_not_update_parking_lot_capacity_when_patch_update_with_negative_capacity()
+        {
+            var client = GetClient();
+            var parkingLot = SeedParkingLot();
+            var parkingLotContent = SerializeRequestBody(parkingLot);
+            var createResponse = await client.PostAsync(RootUri, parkingLotContent);
+            createResponse.EnsureSuccessStatusCode();
+
+            var lotUpdate = new ParkingLotUpdateDto()
+            {
+                Capacity = -1,
+            };
+            var updateContent = SerializeRequestBody(lotUpdate);
+            var updateResponse = await client.PatchAsync(createResponse.Headers.Location, updateContent);
+
+            Assert.False(updateResponse.IsSuccessStatusCode);
+            var getResponse = await client.GetAsync(createResponse.Headers.Location);
+            getResponse.EnsureSuccessStatusCode();
+            var newParkingLot = await DeserializeResponseBodyAsync<ParkingLotDto>(getResponse);
+            Assert.Equal(parkingLot.Capacity, newParkingLot.Capacity);
+        }
+
         private StringContent SerializeRequestBody(object obj)
         {
             var httpContent = JsonConvert.SerializeObject(obj);
