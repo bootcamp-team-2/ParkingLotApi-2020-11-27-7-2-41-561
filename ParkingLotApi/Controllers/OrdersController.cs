@@ -35,7 +35,7 @@ namespace ParkingLotApi.Controllers
         }
 
         [HttpGet("{orderNumber}")]
-        public async Task<ActionResult<OrderDto>> GetAsync(string orderNumber)
+        public async Task<ActionResult<OrderEntity>> GetAsync(string orderNumber)
         {
             var searchedOrder = await this.orderService.GetAsync(orderNumber);
             if (searchedOrder == null)
@@ -60,7 +60,7 @@ namespace ParkingLotApi.Controllers
                 return NotFound();
             }
 
-            await this.orderService.UpdateAsync(orderUpdateDto);
+            await this.orderService.UpdateAsync(orderNumber, orderUpdateDto);
             return NoContent();
         }
     }

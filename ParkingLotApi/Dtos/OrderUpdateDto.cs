@@ -8,6 +8,6 @@ namespace ParkingLotApi.Dtos
 {
     public class OrderUpdateDto
     {
-        public OrderStatus Status { get; set; }
+        public OrderStatus Status { get; set; } = OrderStatus.Close;
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ParkingLotApi;
 using ParkingLotApi.Dtos;
+using ParkingLotApi.Entities;
 using Xunit;
 using static ParkingLotApiTest.TestTool;
 
@@ -32,6 +33,25 @@ namespace ParkingLotApiTest.ControllerTest
             var returnedOrder = await DeserializeResponseBodyAsync<OrderDto>(createResponse);
             Assert.Equal(newOrder.PlateNumber, returnedOrder.PlateNumber);
             Assert.Equal(newOrder.ParkingLotName, returnedOrder.ParkingLotName);
+        }
+
+        [Fact]
+        public async Task Should_update_order_status_when_car_leaves()
+        {
+            var client = GetClient();
+            var newOrder = SeedOrder();
+            var orderContent = SerializeRequestBody(newOrder);
+            var createResponse = await client.PostAsync(RootUri, orderContent);
+            createResponse.EnsureSuccessStatusCode();
+
+            var orderUpdate = new OrderUpdateDto();
+            var updateResponse = await client.PatchAsync(createResponse.Headers.Location, SerializeRequestBody(orderUpdate));
+
+            updateResponse.EnsureSuccessStatusCode();
+            var getResponse = await client.GetAsync(createResponse.Headers.Location);
+            getResponse.EnsureSuccessStatusCode();
+            var updatedOrder = await DeserializeResponseBodyAsync<OrderEntity>(getResponse);
+            Assert.Equal(orderUpdate.Status, updatedOrder.Status);
         }
 
         private OrderCreateDto SeedOrder()

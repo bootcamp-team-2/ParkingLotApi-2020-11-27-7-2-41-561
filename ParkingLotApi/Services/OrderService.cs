@@ -11,8 +11,8 @@ namespace ParkingLotApi.Services
     public interface IOrderService
     {
         public Task<OrderDto> AddAsync(OrderCreateDto orderCreateDto);
-        public Task<OrderDto> GetAsync(string orderNumber);
-        public Task UpdateAsync(OrderUpdateDto orderUpdateDto);
+        public Task<OrderEntity> GetAsync(string orderNumber);
+        public Task UpdateAsync(string orderNumber, OrderUpdateDto orderUpdateDto);
     }
 
     public class OrderService : IOrderService
@@ -39,20 +39,22 @@ namespace ParkingLotApi.Services
             return new OrderDto(newOrder);
         }
 
-        public async Task<OrderDto> GetAsync(string orderNumber)
+        public async Task<OrderEntity> GetAsync(string orderNumber)
         {
-            var order = this.parkingLotContext.Orders.FirstOrDefault(order => order.OrderNumber == orderNumber);
-            if (order == null)
-            {
-                return null;
-            }
-
-            return new OrderDto(order);
+            var order = this.parkingLotContext.Orders.FirstOrDefault(_ => _.OrderNumber == orderNumber);
+            return order;
         }
 
-        public async Task UpdateAsync(OrderUpdateDto orderUpdateDto)
+        public async Task UpdateAsync(string orderNumber, OrderUpdateDto orderUpdateDto)
         {
-            throw new NotImplementedException();
+            var orderToUpdate = this.parkingLotContext.Orders
+                .FirstOrDefault(_ => _.OrderNumber == orderNumber);
+            if (orderToUpdate != null)
+            {
+                orderToUpdate.Status = orderUpdateDto.Status;
+            }
+
+            await this.parkingLotContext.SaveChangesAsync();
         }
     }
 }
