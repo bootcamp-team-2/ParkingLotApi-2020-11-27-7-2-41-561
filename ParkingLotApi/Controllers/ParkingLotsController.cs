@@ -92,7 +92,7 @@ namespace ParkingLotApi.Controllers
             }
 
             await this.parkingLotService.DeleteAsync(id);
-            return NoContent();
+            return Accepted();
         }
     }
 

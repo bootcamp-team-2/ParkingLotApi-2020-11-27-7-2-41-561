@@ -91,7 +91,10 @@ namespace ParkingLotApi.Services
         public async Task DeleteAsync(string id)
         {
             var parkingLotToDelete = this.parkingLotContext.ParkingLots.FirstOrDefault(lot => lot.Id == id);
-            if (parkingLotToDelete != null)
+
+            if (parkingLotToDelete != null 
+                && !this.parkingLotContext.Orders
+                    .Any(_ => _.ParkingLotName == parkingLotToDelete.Name && _.Status == OrderStatus.Open))
             {
                 this.parkingLotContext.ParkingLots.Remove(parkingLotToDelete);
             }
