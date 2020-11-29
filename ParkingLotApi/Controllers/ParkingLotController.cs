@@ -28,13 +28,6 @@ namespace ParkingLotApi.Controllers
             return Ok(parkingLotDto);
         }
 
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<ParkingLotDto>>> GetALL()
-        //{
-        //    var parkingLotDtos = await this.parkingLotService.GetAll();
-        //    return Ok(parkingLotDtos);
-        //}
-
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ParkingLotDto>>> GetALL(int?pageSize, int?startPage)
         {
