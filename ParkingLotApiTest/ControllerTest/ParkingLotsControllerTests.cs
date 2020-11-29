@@ -147,6 +147,24 @@ namespace ParkingLotApiTest.ControllerTest
             Assert.Equal(parkingLot.Capacity, newParkingLot.Capacity);
         }
 
+        [Fact]
+        public async Task Should_delete_parking_lot_when_delete()
+        {
+            var client = GetClient();
+            var parkingLot = SeedParkingLot();
+            var parkingLotContent = SerializeRequestBody(parkingLot);
+            var createResponse = await client.PostAsync(RootUri, parkingLotContent);
+            createResponse.EnsureSuccessStatusCode();
+
+            var deleteResponse = await client.DeleteAsync(createResponse.Headers.Location);
+            deleteResponse.EnsureSuccessStatusCode();
+
+            var getResponse = await client.GetAsync(RootUri);
+            getResponse.EnsureSuccessStatusCode();
+            var returnedParkingLots = await DeserializeResponseBodyAsync<List<ParkingLotDto>>(getResponse);
+            Assert.Empty(returnedParkingLots);
+        }
+
         private StringContent SerializeRequestBody(object obj)
         {
             var httpContent = JsonConvert.SerializeObject(obj);

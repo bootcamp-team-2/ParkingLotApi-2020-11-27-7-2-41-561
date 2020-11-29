@@ -73,7 +73,13 @@ namespace ParkingLotApi.Services
 
         public async Task Delete(string id)
         {
-            throw new NotImplementedException();
+            var parkingLotToDelete = this.parkingLotContext.ParkingLots.FirstOrDefault(lot => lot.Id == id);
+            if (parkingLotToDelete != null)
+            {
+                this.parkingLotContext.ParkingLots.Remove(parkingLotToDelete);
+            }
+
+            await this.parkingLotContext.SaveChangesAsync();
         }
 
         public async Task Update(string id, ParkingLotUpdateDto parkingLotUpdateDto)
