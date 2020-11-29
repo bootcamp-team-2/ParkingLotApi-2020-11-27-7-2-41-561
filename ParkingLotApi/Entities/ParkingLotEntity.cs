@@ -17,11 +17,13 @@ namespace ParkingLotApi.Entities
             Name = parkingLotDto.Name;
             Capacity = parkingLotDto.Capacity;
             Location = parkingLotDto.Location;
+            AvailablePosition = Capacity;
         }
 
         public string Id { get; set; } = Guid.NewGuid().ToString("N");
         public string Name { get; set; }
         public int Capacity { get; set; }
         public string Location { get; set; }
+        public int AvailablePosition { get; set; }
     }
 }

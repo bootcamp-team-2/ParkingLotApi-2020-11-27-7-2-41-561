@@ -41,7 +41,9 @@ namespace ParkingLotApi.Dtos
 
         public bool Equals(ParkingLotDto lotA, ParkingLotDto lotB)
         {
-            return lotA.Name == lotB.Name && lotA.Capacity == lotB.Capacity && lotA.Location == lotB.Location;
+            return lotA.Name == lotB.Name
+                   && lotA.Capacity == lotB.Capacity
+                   && lotA.Location == lotB.Location;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using ParkingLotApi.Dtos;
 using ParkingLotApi.Entities;
@@ -13,6 +14,7 @@ namespace ParkingLotApi.Services
         public Task<OrderDto> AddAsync(OrderCreateDto orderCreateDto);
         public Task<OrderDto> GetAsync(string orderNumber);
         public Task<OrderEntity> GetInDevAsync(string orderNumber);
+        public Task<List<OrderEntity>> GetAllInDevAsync();
         public Task UpdateAsync(string orderNumber, OrderUpdateDto orderUpdateDto);
     }
 
@@ -27,6 +29,18 @@ namespace ParkingLotApi.Services
 
         public async Task<OrderDto> AddAsync(OrderCreateDto orderCreateDto)
         {
+            var parkingLot = this.parkingLotContext.ParkingLots
+                .FirstOrDefault(_ => _.Name == orderCreateDto.ParkingLotName);
+            if (parkingLot == null)
+            {
+                return null;
+            }
+
+            if (parkingLot.AvailablePosition <= 0)
+            {
+                return null;
+            }
+
             var newOrder = new OrderEntity(orderCreateDto);
             if (this.parkingLotContext.Orders.Any(order =>
                 order.PlateNumber == newOrder.PlateNumber && order.Status == OrderStatus.Open))
@@ -35,6 +49,7 @@ namespace ParkingLotApi.Services
             }
 
             await this.parkingLotContext.Orders.AddAsync(newOrder);
+            parkingLot.AvailablePosition -= 1;
             await this.parkingLotContext.SaveChangesAsync();
 
             return new OrderDto(newOrder);
@@ -57,6 +72,12 @@ namespace ParkingLotApi.Services
             return order;
         }
 
+        public async Task<List<OrderEntity>> GetAllInDevAsync()
+        {
+            var orders = this.parkingLotContext.Orders.ToList();
+            return orders;
+        }
+
         public async Task UpdateAsync(string orderNumber, OrderUpdateDto orderUpdateDto)
         {
             var orderToUpdate = this.parkingLotContext.Orders
@@ -67,6 +88,10 @@ namespace ParkingLotApi.Services
             {
                 orderToUpdate.Status = orderUpdateDto.Status;
                 orderToUpdate.CloseTimeOffset = DateTimeOffset.Now;
+
+                var parkingLot = this.parkingLotContext.ParkingLots
+                    .FirstOrDefault(_ => _.Name == orderToUpdate.ParkingLotName);
+                parkingLot.AvailablePosition += 1;
             }
 
             await this.parkingLotContext.SaveChangesAsync();

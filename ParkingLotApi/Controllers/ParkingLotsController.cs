@@ -39,6 +39,18 @@ namespace ParkingLotApi.Controllers
             return Ok(searchedParkingLots);
         }
 
+        //[HttpGet]
+        //public async Task<ActionResult<ParkingLotDto>> SearchByNameAsync([FromQuery] string name)
+        //{
+        //    var searchResult = await this.parkingLotService.SearchByNameAsync(name);
+        //    if (searchResult == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return Ok(searchResult);
+        //}
+
         [HttpGet("{id}")]
         public async Task<ActionResult<ParkingLotDto>> GetAsync(string id)
         {
@@ -66,7 +78,7 @@ namespace ParkingLotApi.Controllers
                 return NotFound();
             }
 
-            await this.parkingLotService.Update(id, parkingLotUpdateDto);
+            await this.parkingLotService.UpdateAsync(id, parkingLotUpdateDto);
             return NoContent();
         }
 
@@ -79,7 +91,7 @@ namespace ParkingLotApi.Controllers
                 return NotFound();
             }
 
-            await this.parkingLotService.Delete(id);
+            await this.parkingLotService.DeleteAsync(id);
             return NoContent();
         }
     }

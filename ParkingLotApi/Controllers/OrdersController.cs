@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.Extensions.Hosting;
 using ParkingLotApi.Dtos;
 using ParkingLotApi.Entities;
@@ -17,10 +18,12 @@ namespace ParkingLotApi.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService orderService;
+        private readonly IParkingLotService parkingLotService;
         private readonly IHostEnvironment hostEnvironment;
-        public OrdersController(IOrderService orderService, IHostEnvironment hostEnvironment)
+        public OrdersController(IOrderService orderService, IParkingLotService parkingLotService, IHostEnvironment hostEnvironment)
         {
             this.orderService = orderService;
+            this.parkingLotService = parkingLotService;
             this.hostEnvironment = hostEnvironment;
         }
 
@@ -47,6 +50,18 @@ namespace ParkingLotApi.Controllers
             }
 
             return Ok(searchedOrder);
+        }
+
+        [HttpGet("dev")]
+        public async Task<ActionResult<IEnumerable<OrderEntity>>> GetAllOrdersInDevAsync()
+        {
+            if (!hostEnvironment.IsDevelopment())
+            {
+                return NotFound();
+            }
+
+            var allOrders = await this.orderService.GetAllInDevAsync();
+            return Ok(allOrders);
         }
 
         [HttpGet("dev/{orderNumber}")]
@@ -81,6 +96,7 @@ namespace ParkingLotApi.Controllers
             }
 
             await this.orderService.UpdateAsync(orderNumber, orderUpdateDto);
+
             return NoContent();
         }
     }

@@ -13,10 +13,11 @@ namespace ParkingLotApi.Services
     public interface IParkingLotService
     {
         public Task<string> AddAsync(ParkingLotDto parkingLotDto);
+        public Task<ParkingLotDto> SearchByNameAsync(string lotName);
         public Task<List<ParkingLotDto>> GetAllAsync(int? limit, int? offset);
         public Task<ParkingLotDto> GetAsync(string id);
-        public Task Delete(string id);
-        public Task Update(string id, ParkingLotUpdateDto parkingLotUpdateDto);
+        public Task DeleteAsync(string id);
+        public Task UpdateAsync(string id, ParkingLotUpdateDto parkingLotUpdateDto);
     }
 
     public class ParkingLotService : IParkingLotService
@@ -44,6 +45,17 @@ namespace ParkingLotApi.Services
             await parkingLotContext.ParkingLots.AddAsync(parkingLot);
             await parkingLotContext.SaveChangesAsync();
             return parkingLot.Id;
+        }
+
+        public async Task<ParkingLotDto> SearchByNameAsync(string lotName)
+        {
+            var searchResult = this.parkingLotContext.ParkingLots.FirstOrDefault(lot => lot.Name == lotName);
+            if (searchResult == null)
+            {
+                return null;
+            }
+
+            return new ParkingLotDto(searchResult);
         }
 
         public async Task<List<ParkingLotDto>> GetAllAsync(int? limit, int? offset)
@@ -76,7 +88,7 @@ namespace ParkingLotApi.Services
             return returnedParkingLot;
         }
 
-        public async Task Delete(string id)
+        public async Task DeleteAsync(string id)
         {
             var parkingLotToDelete = this.parkingLotContext.ParkingLots.FirstOrDefault(lot => lot.Id == id);
             if (parkingLotToDelete != null)
@@ -87,12 +99,14 @@ namespace ParkingLotApi.Services
             await this.parkingLotContext.SaveChangesAsync();
         }
 
-        public async Task Update(string id, ParkingLotUpdateDto parkingLotUpdateDto)
+        public async Task UpdateAsync(string id, ParkingLotUpdateDto parkingLotUpdateDto)
         {
             var parkingLotToUpdate = this.parkingLotContext.ParkingLots.FirstOrDefault(lot => lot.Id == id);
             if (parkingLotToUpdate != null)
             {
+                var diff = parkingLotUpdateDto.Capacity - parkingLotToUpdate.Capacity;
                 parkingLotToUpdate.Capacity = parkingLotUpdateDto.Capacity;
+                parkingLotToUpdate.AvailablePosition += diff;
             }
 
             await this.parkingLotContext.SaveChangesAsync();
