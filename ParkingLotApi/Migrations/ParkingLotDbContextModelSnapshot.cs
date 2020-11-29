@@ -18,8 +18,9 @@ namespace ParkingLotApi.Migrations
 
             modelBuilder.Entity("ParkingLotApi.Entity.ParkingLotEntity", b =>
                 {
-                    b.Property<string>("Name")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
                     b.Property<int>("Capacity")
                         .HasColumnType("int");
@@ -27,7 +28,10 @@ namespace ParkingLotApi.Migrations
                     b.Property<string>("Location")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.HasKey("Name");
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
 
                     b.ToTable("ParkingLots");
                 });

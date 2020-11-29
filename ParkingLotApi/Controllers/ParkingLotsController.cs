@@ -11,16 +11,16 @@ namespace ParkingLotApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class ParkingLotController : ControllerBase
+    public class ParkingLotsController : ControllerBase
     {
         private readonly ParkingLotService parkingLotService;
 
-        public ParkingLotController(ParkingLotService parkingLotService)
+        public ParkingLotsController(ParkingLotService parkingLotService)
         {
             this.parkingLotService = parkingLotService;
         }
 
-        [HttpPost("parkingLots")]
+        [HttpPost]
         public async Task<ActionResult<int>> Add(ParkingLotDto parkingLotDto)
         {
             string errorMessage = string.Empty;
@@ -29,23 +29,28 @@ namespace ParkingLotApi.Controllers
                 return BadRequest(errorMessage);
             }
 
-            var name = await this.parkingLotService.AddParkingLot(parkingLotDto);
+            var id = await this.parkingLotService.AddParkingLot(parkingLotDto);
 
-            return CreatedAtAction(nameof(GetByName), new { Name = name }, parkingLotDto);
+            return CreatedAtAction(nameof(GetById), new { id = id }, parkingLotDto);
         }
 
-        [HttpGet("parkingLots/{name}")]
-        public async Task<ActionResult<ParkingLotDto>> GetByName(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ParkingLotDto>> GetById(int id)
         {
             var parkingLotDto = await this.parkingLotService.GetById(id);
             return Ok(parkingLotDto);
         }
 
-        //[HttpDelete("parkingLots/{id}")]
-        //public async void Delete(int id)
-        //{
-        //    await this.parkingLotService.DeleteParkingLot(id);
-        //    return NoContent();
-        //}
+        [HttpDelete("{name}")]
+        public async Task<ActionResult<int>> DeleteParkingLotAsync(string name)
+        {
+            if (!await parkingLotService.ContainExistingParkingLot(name))
+            {
+                return NotFound();
+            }
+
+            await parkingLotService.DeleteParkingLot(name);
+            return NoContent();
+        }
     }
 }

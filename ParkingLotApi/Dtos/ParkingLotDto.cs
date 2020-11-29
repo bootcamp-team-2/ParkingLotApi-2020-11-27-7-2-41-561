@@ -57,12 +57,6 @@ namespace ParkingLotApi.Dtos
                 return false;
             }
 
-            if (string.IsNullOrEmpty(this.Capacity.ToString()))
-            {
-                errorMessage = "capacity can not be null or empty";
-                return false;
-            }
-
             if (this.Capacity < 0)
             {
                 errorMessage = "capacity can not be less than 0";

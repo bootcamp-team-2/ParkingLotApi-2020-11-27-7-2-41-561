@@ -32,11 +32,16 @@ namespace ParkingLotApi.Service
             return parkingLotEntity.Id;
         }
 
-        public async Task DeleteParkingLot(int id)
+        public async Task DeleteParkingLot(string name)
         {
-            var foundParkingLotEntity = await this.parkingLotDbContext.ParkingLots.FirstOrDefaultAsync(parkingLotEntity => parkingLotEntity.Id == id);
+            var foundParkingLotEntity = await this.parkingLotDbContext.ParkingLots.FirstOrDefaultAsync(parkingLotEntity => parkingLotEntity.Name == name);
             this.parkingLotDbContext.ParkingLots.Remove(foundParkingLotEntity);
             await this.parkingLotDbContext.SaveChangesAsync();
+        }
+
+        public async Task<bool> ContainExistingParkingLot(string name)
+        {
+            return this.parkingLotDbContext.ParkingLots.Any(item => item.Name == name);
         }
     }
 }
