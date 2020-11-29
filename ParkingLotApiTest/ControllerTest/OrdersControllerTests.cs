@@ -42,13 +42,14 @@ namespace ParkingLotApiTest.ControllerTest
             var newOrder = SeedOrder();
             var orderContent = SerializeRequestBody(newOrder);
             var createResponse = await client.PostAsync(RootUri, orderContent);
+            var createdOrder = await DeserializeResponseBodyAsync<OrderDto>(createResponse);
             createResponse.EnsureSuccessStatusCode();
 
             var orderUpdate = new OrderUpdateDto();
             var updateResponse = await client.PatchAsync(createResponse.Headers.Location, SerializeRequestBody(orderUpdate));
 
             updateResponse.EnsureSuccessStatusCode();
-            var getResponse = await client.GetAsync(createResponse.Headers.Location);
+            var getResponse = await client.GetAsync($"{RootUri}/dev/{createdOrder.OrderNumber}");
             getResponse.EnsureSuccessStatusCode();
             var updatedOrder = await DeserializeResponseBodyAsync<OrderEntity>(getResponse);
             Assert.Equal(orderUpdate.Status, updatedOrder.Status);

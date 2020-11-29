@@ -11,7 +11,8 @@ namespace ParkingLotApi.Services
     public interface IOrderService
     {
         public Task<OrderDto> AddAsync(OrderCreateDto orderCreateDto);
-        public Task<OrderEntity> GetAsync(string orderNumber);
+        public Task<OrderDto> GetAsync(string orderNumber);
+        public Task<OrderEntity> GetInDevAsync(string orderNumber);
         public Task UpdateAsync(string orderNumber, OrderUpdateDto orderUpdateDto);
     }
 
@@ -39,7 +40,18 @@ namespace ParkingLotApi.Services
             return new OrderDto(newOrder);
         }
 
-        public async Task<OrderEntity> GetAsync(string orderNumber)
+        public async Task<OrderDto> GetAsync(string orderNumber)
+        {
+            var order = this.parkingLotContext.Orders.FirstOrDefault(_ => _.OrderNumber == orderNumber);
+            if (order == null)
+            {
+                return null;
+            }
+
+            return new OrderDto(order);
+        }
+
+        public async Task<OrderEntity> GetInDevAsync(string orderNumber)
         {
             var order = this.parkingLotContext.Orders.FirstOrDefault(_ => _.OrderNumber == orderNumber);
             return order;
@@ -52,6 +64,7 @@ namespace ParkingLotApi.Services
             if (orderToUpdate != null)
             {
                 orderToUpdate.Status = orderUpdateDto.Status;
+                orderToUpdate.CloseTimeOffset = DateTimeOffset.Now;
             }
 
             await this.parkingLotContext.SaveChangesAsync();

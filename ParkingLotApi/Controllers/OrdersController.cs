@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using ParkingLotApi.Dtos;
 using ParkingLotApi.Entities;
 using ParkingLotApi.Services;
@@ -16,9 +17,11 @@ namespace ParkingLotApi.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService orderService;
-        public OrdersController(IOrderService orderService)
+        private readonly IHostEnvironment hostEnvironment;
+        public OrdersController(IOrderService orderService, IHostEnvironment hostEnvironment)
         {
             this.orderService = orderService;
+            this.hostEnvironment = hostEnvironment;
         }
 
         [HttpPost]
@@ -35,9 +38,26 @@ namespace ParkingLotApi.Controllers
         }
 
         [HttpGet("{orderNumber}")]
-        public async Task<ActionResult<OrderEntity>> GetAsync(string orderNumber)
+        public async Task<ActionResult<OrderDto>> GetAsync(string orderNumber)
         {
             var searchedOrder = await this.orderService.GetAsync(orderNumber);
+            if (searchedOrder == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(searchedOrder);
+        }
+
+        [HttpGet("dev/{orderNumber}")]
+        public async Task<ActionResult<OrderEntity>> GetOrderInDevAsync(string orderNumber)
+        {
+            if (!hostEnvironment.IsDevelopment())
+            {
+                return NotFound();
+            }
+
+            var searchedOrder = await this.orderService.GetInDevAsync(orderNumber);
             if (searchedOrder == null)
             {
                 return NotFound();
