@@ -117,7 +117,7 @@ namespace ParkingLotApiTest.ControllerTest
         }
 
         [Fact]
-        public async Task Should_remove_parkingLot_succefully()
+        public async Task Should_remove_parkingLot_successfully()
         {
             var client = GetClient();
             ParkingLotDto parkingLotDto = new ParkingLotDto();
@@ -132,6 +132,36 @@ namespace ParkingLotApiTest.ControllerTest
             var body = await allParkingLotResponse.Content.ReadAsStringAsync();
             var returnParkingLots = JsonConvert.DeserializeObject<List<ParkingLotDto>>(body);
             Assert.Equal(0, returnParkingLots.Count);
+        }
+
+        [Fact]
+        public async Task Should_get_15_parkingLots_on_one_page()
+        {
+            var client = GetClient();
+
+            for (int i = 0; i < 20; i++)
+            {
+                ParkingLotDto parkingLotDto = new ParkingLotDto();
+                parkingLotDto.Name = "LiverpoolLot" + $"{i}";
+                parkingLotDto.Location = "Liverpool";
+                parkingLotDto.Capacity = 100;
+                var httpContent = JsonConvert.SerializeObject(parkingLotDto);
+                StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+                await client.PostAsync("/parkingLots", content);
+            }
+
+            var allParkingLotResponse = await client.GetAsync("/parkingLots");
+            var body1 = await allParkingLotResponse.Content.ReadAsStringAsync();
+
+            var returnAllParkingLots = JsonConvert.DeserializeObject<List<ParkingLotDto>>(body1);
+
+            Assert.Equal(20, returnAllParkingLots.Count);
+            var parkingLotsOnOnePageResponse = await client.GetAsync("/parkinglots?pagesize=15&startpage=1");
+            var body = await parkingLotsOnOnePageResponse.Content.ReadAsStringAsync();
+
+            var returnParkingLots = JsonConvert.DeserializeObject<List<ParkingLotDto>>(body);
+
+            Assert.Equal(15, returnParkingLots.Count);
         }
     }
 }

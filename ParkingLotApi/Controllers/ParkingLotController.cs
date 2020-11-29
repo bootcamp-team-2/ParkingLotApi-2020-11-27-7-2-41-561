@@ -28,11 +28,24 @@ namespace ParkingLotApi.Controllers
             return Ok(parkingLotDto);
         }
 
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<ParkingLotDto>>> GetALL()
+        //{
+        //    var parkingLotDtos = await this.parkingLotService.GetAll();
+        //    return Ok(parkingLotDtos);
+        //}
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ParkingLotDto>>> GetALL()
+        public async Task<ActionResult<IEnumerable<ParkingLotDto>>> GetALL(int?pageSize, int?startPage)
         {
-            var parkingLotDtos = await this.parkingLotService.GetAll();
-            return Ok(parkingLotDtos);
+            if (pageSize.HasValue && startPage.HasValue)
+            {
+                var parkingLotDtos = await this.parkingLotService.GetOnPage(pageSize.Value, startPage.Value);
+                return Ok(parkingLotDtos);
+            }
+
+            var parkingLotDtosAll = await this.parkingLotService.GetAll();
+            return Ok(parkingLotDtosAll);
         }
 
         [HttpPost]
