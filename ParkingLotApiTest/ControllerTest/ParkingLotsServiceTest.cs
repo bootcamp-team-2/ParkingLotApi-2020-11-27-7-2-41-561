@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ParkingLotApi;
 using ParkingLotApi.Dtos;
@@ -39,10 +40,11 @@ namespace ParkingLotApiTest.ControllerTest
             paringLotDto.Location = "southRoad";
 
             ParkingLotService parkingLotService = new ParkingLotService(context);
-            var name = await parkingLotService.AddParkingLotAsync(paringLotDto);
+            await parkingLotService.AddParkingLot(paringLotDto);
 
             Assert.Equal(1, context.ParkingLots.Count());
-            Assert.Equal(paringLotDto.Name, name);
+            var createdParkingLot = await context.ParkingLots.FirstOrDefaultAsync(item => item.Name == paringLotDto.Name);
+            Assert.Equal(paringLotDto, new ParkingLotDto(createdParkingLot));
         }
 
         [Fact]
@@ -61,9 +63,9 @@ namespace ParkingLotApiTest.ControllerTest
             parkingLot2.Location = "southRoad";
 
             ParkingLotService parkingLotService = new ParkingLotService(context);
-            var name1 = await parkingLotService.AddParkingLotAsync(parkingLot1);
-            await parkingLotService.AddParkingLotAsync(parkingLot2);
-            var requiredParkingLot = await parkingLotService.GetByNameAsync(name1);
+            var name1 = await parkingLotService.AddParkingLot(parkingLot1);
+            await parkingLotService.AddParkingLot(parkingLot2);
+            var requiredParkingLot = await parkingLotService.GetById(name1);
             Assert.Equal(parkingLot1, requiredParkingLot);
         }
     }

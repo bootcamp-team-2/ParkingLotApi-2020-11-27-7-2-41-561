@@ -30,8 +30,8 @@ namespace ParkingLotApiTest.ControllerTest
             var httpContent = JsonConvert.SerializeObject(paringLotDto);
             StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
             var created = await client.PostAsync("/ParkingLotsApi/parkingLots", content);
-            var createdBody = created.Content.ReadAsStringAsync();
-            var createdParkingLot = JsonConvert.DeserializeObject<ParkingLotDto>(createdBody.Result);
+            var createdBody = await created.Content.ReadAsStringAsync();
+            var createdParkingLot = JsonConvert.DeserializeObject<ParkingLotDto>(createdBody);
 
             var parkingLots = await client.GetAsync("/ParkingLotsApi/parkingLots?name");
             var body = await parkingLots.Content.ReadAsStringAsync();

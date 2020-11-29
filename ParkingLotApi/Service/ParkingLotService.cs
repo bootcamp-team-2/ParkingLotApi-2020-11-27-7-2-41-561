@@ -18,18 +18,25 @@ namespace ParkingLotApi.Service
             this.parkingLotDbContext = parkingLotDbContext;
         }
 
-        public async Task<ParkingLotDto> GetByNameAsync(string name)
+        public async Task<ParkingLotDto> GetById(int id)
         {
-            var foundParkingLotEntity = await this.parkingLotDbContext.ParkingLots.FirstOrDefaultAsync(parkingLotEntity => parkingLotEntity.Name == name);
+            var foundParkingLotEntity = await this.parkingLotDbContext.ParkingLots.FirstOrDefaultAsync(parkingLotEntity => parkingLotEntity.Id == id);
             return new ParkingLotDto(foundParkingLotEntity);
         }
 
-        public async Task<string> AddParkingLotAsync(ParkingLotDto parkingLotDto)
+        public async Task<int> AddParkingLot(ParkingLotDto parkingLotDto)
         {
             ParkingLotEntity parkingLotEntity = new ParkingLotEntity(parkingLotDto);
             await this.parkingLotDbContext.ParkingLots.AddAsync(parkingLotEntity);
             await this.parkingLotDbContext.SaveChangesAsync();
-            return parkingLotEntity.Name;
+            return parkingLotEntity.Id;
+        }
+
+        public async Task DeleteParkingLot(int id)
+        {
+            var foundParkingLotEntity = await this.parkingLotDbContext.ParkingLots.FirstOrDefaultAsync(parkingLotEntity => parkingLotEntity.Id == id);
+            this.parkingLotDbContext.ParkingLots.Remove(foundParkingLotEntity);
+            await this.parkingLotDbContext.SaveChangesAsync();
         }
     }
 }

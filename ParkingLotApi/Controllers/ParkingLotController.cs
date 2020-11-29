@@ -9,7 +9,7 @@ using ParkingLotApi.Service;
 
 namespace ParkingLotApi.Controllers
 {
-    [Route("ParkingLotsApi")]
+    [Route("[controller]")]
     [ApiController]
     public class ParkingLotController : ControllerBase
     {
@@ -21,24 +21,31 @@ namespace ParkingLotApi.Controllers
         }
 
         [HttpPost("parkingLots")]
-        public async Task<(ActionResult<ParkingLotDto>, string message)> Add(ParkingLotDto parkingLotDto)
+        public async Task<ActionResult<int>> Add(ParkingLotDto parkingLotDto)
         {
-            if (string.IsNullOrEmpty(parkingLotDto.Name))
+            string errorMessage = string.Empty;
+            if (!parkingLotDto.IsValid(out errorMessage))
             {
-                string message = "name of parkingLot can not be null or empty";
-                return (BadRequest(null), message);
+                return BadRequest(errorMessage);
             }
 
-            var name = await this.parkingLotService.AddParkingLotAsync(parkingLotDto);
+            var name = await this.parkingLotService.AddParkingLot(parkingLotDto);
 
-            return (CreatedAtAction(nameof(GetByName), new { Name = name }, parkingLotDto), null);
+            return CreatedAtAction(nameof(GetByName), new { Name = name }, parkingLotDto);
         }
 
         [HttpGet("parkingLots/{name}")]
-        public async Task<ActionResult<ParkingLotDto>> GetByName(string name)
+        public async Task<ActionResult<ParkingLotDto>> GetByName(int id)
         {
-            var parkingLotDto = await this.parkingLotService.GetByNameAsync(name);
+            var parkingLotDto = await this.parkingLotService.GetById(id);
             return Ok(parkingLotDto);
         }
+
+        //[HttpDelete("parkingLots/{id}")]
+        //public async void Delete(int id)
+        //{
+        //    await this.parkingLotService.DeleteParkingLot(id);
+        //    return NoContent();
+        //}
     }
 }
