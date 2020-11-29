@@ -61,7 +61,9 @@ namespace ParkingLotApi.Services
         {
             var orderToUpdate = this.parkingLotContext.Orders
                 .FirstOrDefault(_ => _.OrderNumber == orderNumber);
-            if (orderToUpdate != null)
+            if (orderToUpdate != null 
+                && orderToUpdate.Status == OrderStatus.Open 
+                && orderUpdateDto.Status == OrderStatus.Close)
             {
                 orderToUpdate.Status = orderUpdateDto.Status;
                 orderToUpdate.CloseTimeOffset = DateTimeOffset.Now;
