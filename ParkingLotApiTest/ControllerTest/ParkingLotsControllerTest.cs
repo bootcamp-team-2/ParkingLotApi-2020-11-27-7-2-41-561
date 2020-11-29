@@ -1,69 +1,43 @@
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Mime;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using ParkingLotApi;
 using ParkingLotApi.Dtos;
-using ParkingLotApi.Repository;
-using ParkingLotApi.Service;
 using Xunit;
 
 namespace ParkingLotApiTest.ControllerTest
 {
+    [Collection("ControllerTest")]
     public class ParkingLotsControllerTest : TestBase
     {
         public ParkingLotsControllerTest(CustomWebApplicationFactory<Startup> factory) : base(factory)
         {
         }
 
-        //[Fact]
-        //public async Task Should_get_hello_world()
-        //{
-        //    var client = GetClient();
-
-        //    var allCompaniesResponse = await client.GetAsync("/Hello");
-        //    var responseBody = await allCompaniesResponse.Content.ReadAsStringAsync();
-
-        //    Assert.Equal("Hello World", responseBody);
-        //}
-
         [Fact]
-        public async Task Should_create_a_new_parkingLot_when_give_name_capacity_and_location_Test()
+        public async Task Should_create_parkingLot_success_Test()
         {
-            var scope = Factory.Services.CreateScope();
-            var scopeServices = scope.ServiceProvider;
-            ParkingLotDbContext context = scopeServices.GetRequiredService<ParkingLotDbContext>();
+            var client = GetClient();
             ParkingLotDto paringLotDto = new ParkingLotDto();
             paringLotDto.Name = "123";
             paringLotDto.Capacity = 0;
             paringLotDto.Location = "southRoad";
 
-            ParkingLotService parkingLotService = new ParkingLotService(context);
-            var name = await parkingLotService.AddParkingLotAsync(paringLotDto);
+            var httpContent = JsonConvert.SerializeObject(paringLotDto);
+            StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var created = await client.PostAsync("/ParkingLotsApi/parkingLots", content);
+            var createdBody = created.Content.ReadAsStringAsync();
+            var createdParkingLot = JsonConvert.DeserializeObject<ParkingLotDto>(createdBody.Result);
 
-            Assert.Equal(1, context.ParkingLots.Count());
-            Assert.Equal(paringLotDto.Name, name);
-        }
+            var parkingLots = await client.GetAsync("/ParkingLotsApi/parkingLots?name");
+            var body = await parkingLots.Content.ReadAsStringAsync();
+            var createdParkingLots = JsonConvert.DeserializeObject<ParkingLotDto>(body);
 
-        [Fact]
-        public async Task Should_return_specific_parkingLot_when_give_name_Test()
-        {
-            var scope = Factory.Services.CreateScope();
-            var scopeServices = scope.ServiceProvider;
-            ParkingLotDbContext context = scopeServices.GetRequiredService<ParkingLotDbContext>();
-            ParkingLotDto parkingLot1 = new ParkingLotDto();
-            parkingLot1.Name = "345";
-            parkingLot1.Capacity = 0;
-            parkingLot1.Location = "southRoad";
-            ParkingLotDto parkingLot2 = new ParkingLotDto();
-            parkingLot2.Name = "234";
-            parkingLot2.Capacity = 0;
-            parkingLot2.Location = "southRoad";
-
-            ParkingLotService parkingLotService = new ParkingLotService(context);
-            var name1 = await parkingLotService.AddParkingLotAsync(parkingLot1);
-            await parkingLotService.AddParkingLotAsync(parkingLot2);
-            var requiredParkingLot = await parkingLotService.GetByNameAsync(name1);
-            Assert.Equal(parkingLot1, requiredParkingLot);
+            Assert.Equal(paringLotDto, createdParkingLot);
         }
     }
 }

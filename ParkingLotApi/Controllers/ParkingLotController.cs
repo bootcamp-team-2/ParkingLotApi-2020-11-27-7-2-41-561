@@ -21,11 +21,17 @@ namespace ParkingLotApi.Controllers
         }
 
         [HttpPost("parkingLots")]
-        public async Task<ActionResult<ParkingLotDto>> Add(ParkingLotDto parkingLotDto)
+        public async Task<(ActionResult<ParkingLotDto>, string message)> Add(ParkingLotDto parkingLotDto)
         {
+            if (string.IsNullOrEmpty(parkingLotDto.Name))
+            {
+                string message = "name of parkingLot can not be null or empty";
+                return (BadRequest(null), message);
+            }
+
             var name = await this.parkingLotService.AddParkingLotAsync(parkingLotDto);
 
-            return CreatedAtAction(nameof(GetByName), new { Name = name }, parkingLotDto);
+            return (CreatedAtAction(nameof(GetByName), new { Name = name }, parkingLotDto), null);
         }
 
         [HttpGet("parkingLots/{name}")]
