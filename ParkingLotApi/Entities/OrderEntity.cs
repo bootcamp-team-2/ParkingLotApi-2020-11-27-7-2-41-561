@@ -25,6 +25,7 @@ namespace ParkingLotApi.Entities
             ParkingLotName = orderCreateDto.ParkingLotName;
             PlateNumber = orderCreateDto.PlateNumber;
             CreationTimeOffset = DateTimeOffset.Now;
+            CloseTimeOffset = null;
             Status = OrderStatus.Open;
         }
 
@@ -32,7 +33,7 @@ namespace ParkingLotApi.Entities
         public string ParkingLotName { get; set; }
         public string PlateNumber { get; set; }
         public DateTimeOffset CreationTimeOffset { get; set; }
-        public DateTimeOffset CloseTimeOffset { get; set; }
+        public DateTimeOffset? CloseTimeOffset { get; set; }
         public OrderStatus Status { get; set; }
     }
 }

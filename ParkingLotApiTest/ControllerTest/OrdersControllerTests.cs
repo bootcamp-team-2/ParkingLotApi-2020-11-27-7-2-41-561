@@ -53,6 +53,7 @@ namespace ParkingLotApiTest.ControllerTest
             getResponse.EnsureSuccessStatusCode();
             var updatedOrder = await DeserializeResponseBodyAsync<OrderEntity>(getResponse);
             Assert.Equal(orderUpdate.Status, updatedOrder.Status);
+            Assert.True(updatedOrder.CloseTimeOffset.HasValue);
         }
 
         private OrderCreateDto SeedOrder()
