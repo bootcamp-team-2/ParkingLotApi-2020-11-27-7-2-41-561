@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using ParkingLotApi;
 using ParkingLotApi.Dtos;
 using Xunit;
+using static ParkingLotApiTest.TestTool;
 
 namespace ParkingLotApiTest.ControllerTest
 {
@@ -181,19 +182,6 @@ namespace ParkingLotApiTest.ControllerTest
             getResponse.EnsureSuccessStatusCode();
             var returnedParkingLots = await DeserializeResponseBodyAsync<List<ParkingLotDto>>(getResponse);
             Assert.Empty(returnedParkingLots);
-        }
-
-        private StringContent SerializeRequestBody(object obj)
-        {
-            var httpContent = JsonConvert.SerializeObject(obj);
-            StringContent content = new StringContent(httpContent, Encoding.UTF8, "application/json");
-            return content;
-        }
-
-        private async Task<T> DeserializeResponseBodyAsync<T>(HttpResponseMessage response)
-        {
-            var responseString = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<T>(responseString);
         }
 
         private ParkingLotDto SeedParkingLot()

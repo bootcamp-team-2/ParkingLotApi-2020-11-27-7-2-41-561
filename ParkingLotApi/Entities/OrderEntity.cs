@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Threading.Tasks;
+using ParkingLotApi.Dtos;
 
 namespace ParkingLotApi.Entities
 {
@@ -15,8 +16,19 @@ namespace ParkingLotApi.Entities
 
     public class OrderEntity
     {
-        [Key]
-        public string OrderNumber { get; set; }
+        public OrderEntity()
+        {
+        }
+
+        public OrderEntity(OrderCreateDto orderCreateDto)
+        {
+            ParkingLotName = orderCreateDto.ParkingLotName;
+            PlateNumber = orderCreateDto.PlateNumber;
+            CreationTimeOffset = DateTimeOffset.Now;
+            Status = OrderStatus.Open;
+        }
+
+        [Key] public string OrderNumber { get; set; } = Guid.NewGuid().ToString("N");
         public string ParkingLotName { get; set; }
         public string PlateNumber { get; set; }
         public DateTimeOffset CreationTimeOffset { get; set; }
