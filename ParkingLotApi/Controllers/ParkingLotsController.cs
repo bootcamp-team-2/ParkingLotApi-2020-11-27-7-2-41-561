@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using ParkingLotApi.Dtos;
 using ParkingLotApi.Services;
 
@@ -31,9 +33,9 @@ namespace ParkingLotApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ParkingLotDto>>> GetAllAsync(string name, int limit, int offset)
+        public async Task<ActionResult<IEnumerable<ParkingLotDto>>> GetAllAsync(int? limit, int? offset)
         {
-            var searchedParkingLots = await this.parkingLotService.GetAllAsync(name, limit, offset);
+            var searchedParkingLots = await this.parkingLotService.GetAllAsync(limit, offset);
             return Ok(searchedParkingLots);
         }
 
@@ -80,5 +82,11 @@ namespace ParkingLotApi.Controllers
             await this.parkingLotService.Delete(id);
             return NoContent();
         }
+    }
+
+    public class PagingOption
+    {
+        public int Limit { get; set; }
+        public int Offset { get; set; }
     }
 }
