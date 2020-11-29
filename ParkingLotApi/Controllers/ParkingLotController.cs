@@ -29,7 +29,7 @@ namespace ParkingLotApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ParkingLotDto>> GetById(int id)
         {
-            var parkingLotDto = this.parkingLotService.GetById(id);
+            var parkingLotDto = await this.parkingLotService.GetById(id);
             return Ok(parkingLotDto);
         }
 
@@ -52,6 +52,13 @@ namespace ParkingLotApi.Controllers
         {
             await this.parkingLotService.DeleteParkingLot(id);
             return this.NoContent();
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> UpdateParkingLotCapacity(int id, ParkingLotUpdateDto parkingLotUpdateDto)
+        {
+            var updatedParkingLot = await parkingLotService.UpdateParkingLotCapacity(id, parkingLotUpdateDto);
+            return Ok(updatedParkingLot);
         }
     }
 }

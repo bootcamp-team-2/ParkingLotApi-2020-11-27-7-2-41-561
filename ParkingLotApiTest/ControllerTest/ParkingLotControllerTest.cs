@@ -100,6 +100,63 @@ namespace ParkingLotApiTest.ControllerTest
             Assert.Equal(pageSize, parkingLotsReceived.Count);
         }
 
+        [Fact]
+        public async Task Should_Get_Parkinglot_By_Id_Success()
+        {
+            // Given
+            var client = GetClient();
+
+            ParkingLotDto parkingLotDto = new ParkingLotDto();
+            parkingLotDto.Name = "ParkingLot_A";
+            parkingLotDto.Capacity = 30;
+            parkingLotDto.Location = "Beijing";
+
+            // When
+            var httpContent = JsonConvert.SerializeObject(parkingLotDto);
+            StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+
+            // Then
+            var response = await client.PostAsync("/parkingLots", content);
+            var allParkingLotsResponse = await client.GetAsync(response.Headers.Location);
+            var body = await allParkingLotsResponse.Content.ReadAsStringAsync();
+
+            var returnParkingLot = JsonConvert.DeserializeObject<ParkingLotDto>(body);
+
+            Assert.Equal(parkingLotDto.Name, returnParkingLot.Name);
+            Assert.Equal(parkingLotDto.Capacity, returnParkingLot.Capacity);
+            Assert.Equal(parkingLotDto.Location, returnParkingLot.Location);
+        }
+
+        [Fact]
+        public async Task Should_Update_Parkinglot_Capacity_Success()
+        {
+            // Given
+            var client = GetClient();
+
+            ParkingLotDto parkingLotDto = new ParkingLotDto();
+            parkingLotDto.Name = "ParkingLot_A";
+            parkingLotDto.Capacity = 30;
+            parkingLotDto.Location = "Beijing";
+
+            // When
+            var httpContent = JsonConvert.SerializeObject(parkingLotDto);
+            StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+
+            var response = await client.PostAsync("/parkingLots", content);
+            var updateParkingLot = new ParkingLotUpdateDto();
+            updateParkingLot.Capacity = 50;
+            var updateHttpContent = JsonConvert.SerializeObject(updateParkingLot);
+            StringContent updateContent = new StringContent(updateHttpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var allParkingLotsResponse = await client.PatchAsync(response.Headers.Location, updateContent);
+
+            // Then
+            var searchResponse = await client.GetAsync(response.Headers.Location);
+            var searchBody = await searchResponse.Content.ReadAsStringAsync();
+            var searchParkingLotDto = JsonConvert.DeserializeObject<ParkingLotDto>(searchBody);
+
+            Assert.Equal(updateParkingLot.Capacity, searchParkingLotDto.Capacity);
+        }
+
         public List<ParkingLotDto> GenerateParkingLot(int count)
         {
             var arrayGenerated = Enumerable.Range(0, count).ToList();

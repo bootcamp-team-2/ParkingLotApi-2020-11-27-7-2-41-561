@@ -22,9 +22,9 @@ namespace ParkingLotApi.Services
         public async Task<ParkingLotDto> GetById(int id)
         {
             var foundParkingLotEntity = await parkingLotDbContext.ParkingLots
-                .Include(parkingLot => parkingLot.Name)
-                .Include(parkingLot => parkingLot.Capacity)
-                .Include(parkingLot => parkingLot.Location)
+                //.Include(parkingLot => parkingLot.Name)
+                //.Include(parkingLot => parkingLot.Capacity)
+                //.Include(parkingLot => parkingLot.Location)
                 .FirstOrDefaultAsync(parkingLot => parkingLot.Id == id);
             return foundParkingLotEntity == null ? null : new ParkingLotDto(foundParkingLotEntity);
         }
@@ -70,6 +70,16 @@ namespace ParkingLotApi.Services
             var extractedParkingLots = await parkingLotDbContext.ParkingLots.Skip(startIndex).Take(pageSize)
                 .Select(parkingLotEntity => new ParkingLotDto(parkingLotEntity)).ToListAsync();
             return extractedParkingLots;
+        }
+
+        public async Task<ParkingLotDto> UpdateParkingLotCapacity(int id, ParkingLotUpdateDto parkingLotUpdateDto)
+        {
+            var foundParkingLot =
+                await parkingLotDbContext.ParkingLots.FirstOrDefaultAsync(parkingLotDto => parkingLotDto.Id == id);
+            foundParkingLot.Capacity = parkingLotUpdateDto.Capacity;
+            await this.parkingLotDbContext.SaveChangesAsync();
+
+            return new ParkingLotDto(foundParkingLot);
         }
     }
 }
