@@ -17,13 +17,13 @@ namespace ParkingLotApiTest
             {
                 var descriptor = services.SingleOrDefault(
                     d => d.ServiceType ==
-                         typeof(DbContextOptions<ParkingLotContext>));
+                         typeof(DbContextOptions<ParkingLotDbContext>));
 
                 services.Remove(descriptor);
 
-                services.AddDbContext<ParkingLotContext>(options =>
+                services.AddDbContext<ParkingLotDbContext>(options =>
                 {
-                    InMemoryDbContextOptionsExtensions.UseInMemoryDatabase(options, "InMemoryDbForTesting");
+                    options.UseInMemoryDatabase("InMemoryDbForTesting");
                 });
 
                 var sp = services.BuildServiceProvider();
@@ -31,7 +31,7 @@ namespace ParkingLotApiTest
                 using (var scope = sp.CreateScope())
                 {
                     var scopedServices = scope.ServiceProvider;
-                    var db = scopedServices.GetRequiredService<ParkingLotContext>();
+                    var db = scopedServices.GetRequiredService<ParkingLotDbContext>();
                     db.Database.EnsureCreated();
                 }
             });
