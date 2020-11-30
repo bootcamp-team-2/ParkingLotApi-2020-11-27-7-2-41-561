@@ -43,8 +43,13 @@ namespace ParkingLotApi.Controllers
         [HttpPost]
         public async Task<ActionResult<ParkingLotDto>> AddParkingLot(ParkingLotDto parkingLotDto)
         {
-            var id = await parkingLotService.AddParkingLot(parkingLotDto);
-            return CreatedAtAction(nameof(GetById), new { id = id }, parkingLotDto);
+            int? id = await parkingLotService.AddParkingLot(parkingLotDto);
+            if (id != null)
+            {
+                return CreatedAtAction(nameof(GetById), new { id = id }, parkingLotDto);
+            }
+
+            return BadRequest();
         }
 
         [HttpDelete("{id}")]

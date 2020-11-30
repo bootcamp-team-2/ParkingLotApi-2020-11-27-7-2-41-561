@@ -22,28 +22,27 @@ namespace ParkingLotApi.Services
         public async Task<ParkingLotDto> GetById(int id)
         {
             var foundParkingLotEntity = await parkingLotDbContext.ParkingLots
-                //.Include(parkingLot => parkingLot.Name)
-                //.Include(parkingLot => parkingLot.Capacity)
-                //.Include(parkingLot => parkingLot.Location)
                 .FirstOrDefaultAsync(parkingLot => parkingLot.Id == id);
             return foundParkingLotEntity == null ? null : new ParkingLotDto(foundParkingLotEntity);
         }
 
-        public async Task<int> AddParkingLot(ParkingLotDto parkingLotDto)
+        public async Task<int?> AddParkingLot(ParkingLotDto parkingLotDto)
         {
+            if (parkingLotDto.Name == null || parkingLotDto.Location == null)
+            {
+                return null;
+            }
+
             ParkingLotEntity parkingLotEntity = new ParkingLotEntity(parkingLotDto);
-            await parkingLotDbContext.AddAsync(parkingLotEntity);
+            var addedParkingLot = await parkingLotDbContext.AddAsync(parkingLotEntity);
             await parkingLotDbContext.SaveChangesAsync();
 
-            return parkingLotEntity.Id;
+            return addedParkingLot.Entity.Id;
         }
 
         public async Task<List<ParkingLotDto>> GetAll()
         {
             var parkingLots = await parkingLotDbContext.ParkingLots
-                //.Include(parkingLot => parkingLot.Name)
-                //.Include(parkingLot => parkingLot.Capacity)
-                //.Include(parkingLot => parkingLot.Location)
                 .ToListAsync();
             return parkingLots.Select(parkingLotEntity => new ParkingLotDto(parkingLotEntity)).ToList();
         }
@@ -51,9 +50,6 @@ namespace ParkingLotApi.Services
         public async Task DeleteParkingLot(int id)
         {
             var foundParkingLot = await parkingLotDbContext.ParkingLots
-                //.Include(parkingLot => parkingLot.Name)
-                //.Include(parkingLot => parkingLot.Capacity)
-                //.Include(parkingLot => parkingLot.Location)
                 .FirstOrDefaultAsync(parkingLot => parkingLot.Id == id);
             this.parkingLotDbContext.ParkingLots.Remove(foundParkingLot);
             await this.parkingLotDbContext.SaveChangesAsync();
@@ -61,11 +57,6 @@ namespace ParkingLotApi.Services
 
         public async Task<List<ParkingLotDto>> GetByPage(int pageIndex, int pageSize = 15)
         {
-            //var parkingLots = await parkingLotDbContext.ParkingLots.ToListAsync();
-            //var startIndex = (pageIndex - 1) * pageSize;
-            //return parkingLots.GetRange(startIndex, pageSize)
-            //    .Select(parkingLotEntity => new ParkingLotDto(parkingLotEntity)).ToList();
-
             var startIndex = (pageIndex - 1) * pageSize;
             var extractedParkingLots = await parkingLotDbContext.ParkingLots.Skip(startIndex).Take(pageSize)
                 .Select(parkingLotEntity => new ParkingLotDto(parkingLotEntity)).ToListAsync();
