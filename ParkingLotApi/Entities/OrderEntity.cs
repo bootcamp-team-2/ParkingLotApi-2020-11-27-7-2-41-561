@@ -18,6 +18,7 @@ namespace ParkingLotApi.Entities
             ParkingLotName = orderDto.ParkingLotName;
             PlateNumber = orderDto.PlateNumber;
             CreateTime = orderDto.CreateTime;
+            ParkingLotEntity = new ParkingLotEntity(orderDto.ParkingLotDto);
         }
 
         public Guid OrderNumber { get; set; }
@@ -26,5 +27,6 @@ namespace ParkingLotApi.Entities
         public DateTime CreateTime { get; set; }
         public DateTime CloseTime { get; set; }
         public string Status { get; set; }
+        public ParkingLotEntity ParkingLotEntity { get; set; }
     }
 }

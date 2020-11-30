@@ -28,11 +28,13 @@ namespace ParkingLotApi.Dtos
             ParkingLotName = orderEntity.ParkingLotName;
             PlateNumber = orderEntity.PlateNumber;
             CreateTime = orderEntity.CreateTime;
+            ParkingLotDto = new ParkingLotDto(orderEntity.ParkingLotEntity);
         }
 
         public Guid OrderNumber { get; set; }
         public string ParkingLotName { get; set; }
         public string PlateNumber { get; set; }
         public DateTime CreateTime { get; set; }
+        public ParkingLotDto ParkingLotDto { get; set; }
     }
 }
