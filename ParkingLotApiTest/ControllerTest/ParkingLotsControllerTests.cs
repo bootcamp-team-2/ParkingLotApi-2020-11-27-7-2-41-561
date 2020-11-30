@@ -99,7 +99,7 @@ namespace ParkingLotApiTest.ControllerTest
         public async Task Should_return_parking_lots_in_pages_when_get_using_paging_query()
         {
             var client = GetClient();
-            var parkingLots = SeedParkingLots();
+            var parkingLots = SeedParkingLotsForPagingTest();
             foreach (var lot in parkingLots)
             {
                 var content = SerializeRequestBody(lot);
@@ -110,11 +110,11 @@ namespace ParkingLotApiTest.ControllerTest
 
             getResponse.EnsureSuccessStatusCode();
             var returnedParkingLots = await DeserializeResponseBodyAsync<List<ParkingLotDto>>(getResponse);
-            Assert.Equal(2, returnedParkingLots.Count);
+            Assert.Equal(15, returnedParkingLots.Count);
             Assert.Equal(parkingLots[0], returnedParkingLots[0]);
             Assert.Equal(parkingLots[1], returnedParkingLots[1]);
 
-            var getResponse2 = await client.GetAsync($"{RootUri}?pageIndex=2");
+            var getResponse2 = await client.GetAsync($"{RootUri}?pageIndex=5");
 
             getResponse2.EnsureSuccessStatusCode();
             var returnedParkingLots2 = await DeserializeResponseBodyAsync<List<ParkingLotDto>>(getResponse2);
@@ -244,6 +244,24 @@ namespace ParkingLotApiTest.ControllerTest
                     Location = "there",
                 },
             };
+        }
+
+        private List<ParkingLotDto> SeedParkingLotsForPagingTest()
+        {
+            var parkinglotsForPaging = new List<ParkingLotDto>();
+
+            var random = new Random();
+            for (int i = 0; i < 50; i++)
+            {
+                parkinglotsForPaging.Add(new ParkingLotDto()
+                {
+                    Name = Guid.NewGuid().ToString("N"),
+                    Capacity = random.Next(1, 100),
+                    Location = "everywhere",
+                });
+            }
+
+            return parkinglotsForPaging;
         }
     }
 }
