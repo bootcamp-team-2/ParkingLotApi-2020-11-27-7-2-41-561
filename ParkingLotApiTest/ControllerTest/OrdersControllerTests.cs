@@ -85,14 +85,20 @@ namespace ParkingLotApiTest.ControllerTest
             var createdOrder = await DeserializeResponseBodyAsync<OrderDto>(createResponse);
             createResponse.EnsureSuccessStatusCode();
 
-            var orderUpdate = new OrderUpdateDto();
-            var updateResponse = await client.PatchAsync(createResponse.Headers.Location, SerializeRequestBody(orderUpdate));
+            var getOrderResponse = await client.GetAsync($"{RootUri}/{createdOrder.OrderNumber}");
+            getOrderResponse.EnsureSuccessStatusCode();
+            var orderUpdate = await DeserializeResponseBodyAsync<OrderDto>(getOrderResponse);
+            var orderUpdateDto = new OrderUpdateDto(orderUpdate);
+            var updateResponse = await client.PatchAsync(createResponse.Headers.Location, SerializeRequestBody(orderUpdateDto));
 
             updateResponse.EnsureSuccessStatusCode();
+            var orderResult = await DeserializeResponseBodyAsync<OrderUpdateResultDto>(updateResponse);
+            Assert.Equal(OrderStatus.Close, orderResult.OrderStatus);
+
             var getResponse = await client.GetAsync($"{RootUri}/dev/{createdOrder.OrderNumber}");
             getResponse.EnsureSuccessStatusCode();
             var updatedOrder = await DeserializeResponseBodyAsync<OrderEntity>(getResponse);
-            Assert.Equal(orderUpdate.Status, updatedOrder.Status);
+            Assert.Equal(OrderStatus.Close, updatedOrder.Status);
             Assert.True(updatedOrder.CloseTimeOffset.HasValue);
         }
 

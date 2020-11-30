@@ -9,6 +9,19 @@ namespace ParkingLotApi.Dtos
 {
     public class OrderUpdateDto
     {
-        public OrderStatus Status { get; set; } = OrderStatus.Close;
+        public OrderUpdateDto()
+        {
+        }
+
+        public OrderUpdateDto(OrderDto orderDto)
+        {
+            ParkingLotName = orderDto.ParkingLotName;
+            PlateNumber = orderDto.PlateNumber;
+            CreationTimeOffset = orderDto.CreationTimeOffset;
+        }
+
+        public string ParkingLotName { get; set; }
+        public string PlateNumber { get; set; }
+        public DateTimeOffset CreationTimeOffset { get; set; }
     }
 }

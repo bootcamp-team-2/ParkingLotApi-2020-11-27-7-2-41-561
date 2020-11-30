@@ -18,12 +18,10 @@ namespace ParkingLotApi.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService orderService;
-        private readonly IParkingLotService parkingLotService;
         private readonly IHostEnvironment hostEnvironment;
-        public OrdersController(IOrderService orderService, IParkingLotService parkingLotService, IHostEnvironment hostEnvironment)
+        public OrdersController(IOrderService orderService, IHostEnvironment hostEnvironment)
         {
             this.orderService = orderService;
-            this.parkingLotService = parkingLotService;
             this.hostEnvironment = hostEnvironment;
         }
 
@@ -84,22 +82,30 @@ namespace ParkingLotApi.Controllers
         }
 
         [HttpPatch("{orderNumber}")]
-        public async Task<ActionResult> UpdateAsync(string orderNumber, OrderUpdateDto orderUpdateDto)
+        public async Task<ActionResult<OrderUpdateResultDto>> UpdateAsync(string orderNumber, OrderUpdateDto orderUpdateDto)
         {
-            if (orderUpdateDto.Status != OrderStatus.Close)
-            {
-                return BadRequest();
-            }
+            var orderToUpdate = await this.orderService.GetInDevAsync(orderNumber);
 
-            var orderToUpdate = await this.orderService.GetAsync(orderNumber);
             if (orderToUpdate == null)
             {
                 return NotFound(new Dictionary<string, string>() { { "error", "the order is not found" } });
             }
 
-            await this.orderService.UpdateAsync(orderNumber, orderUpdateDto);
+            if (orderToUpdate.ParkingLotName != orderUpdateDto.ParkingLotName
+                && orderToUpdate.PlateNumber != orderUpdateDto.PlateNumber
+                && orderToUpdate.CreationTimeOffset != orderUpdateDto.CreationTimeOffset)
+            {
+                return BadRequest(new Dictionary<string, string>() { { "error", "the order is not recognized" } });
+            }
 
-            return NoContent();
+            if (orderToUpdate.Status == OrderStatus.Close)
+            {
+                return BadRequest(new Dictionary<string, string>() { { "error", "the order is already closed" } });
+            }
+
+            var updateResult = await this.orderService.UpdateAsync(orderNumber, orderUpdateDto);
+
+            return Ok(updateResult);
         }
     }
 }
