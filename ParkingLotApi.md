@@ -21,6 +21,9 @@
 
 #### GET /api/parkinglots?name=&limit=&offset=
 
+GET /api/parkinglots/pages/{index}
+GET /api/parkinglots?name={name}
+
 #### Response
 
 - Status Codes: 200
@@ -51,10 +54,13 @@
 
 ### DELETE /api/parkinglots/{id}
 
+DELETE /api/parkinglots/{name}
+
 Response status codes: 204, 404
 
 ### PATCH /api/parkinglots/{id}
 
+PATCH /api/parkinglots/{name}
 #### Request Body
 
 ```json

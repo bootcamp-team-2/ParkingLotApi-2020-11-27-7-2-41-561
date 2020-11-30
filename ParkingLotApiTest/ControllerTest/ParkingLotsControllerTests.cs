@@ -106,19 +106,19 @@ namespace ParkingLotApiTest.ControllerTest
                 await client.PostAsync(RootUri, content);
             }
 
-            var getResponse = await client.GetAsync($"{RootUri}?limit=1&offset=0");
+            var getResponse = await client.GetAsync($"{RootUri}?pageIndex=1");
 
             getResponse.EnsureSuccessStatusCode();
             var returnedParkingLots = await DeserializeResponseBodyAsync<List<ParkingLotDto>>(getResponse);
-            Assert.Single(returnedParkingLots);
+            Assert.Equal(2, returnedParkingLots.Count);
             Assert.Equal(parkingLots[0], returnedParkingLots[0]);
+            Assert.Equal(parkingLots[1], returnedParkingLots[1]);
 
-            var getResponse2 = await client.GetAsync($"{RootUri}?limit=1&offset=1");
+            var getResponse2 = await client.GetAsync($"{RootUri}?pageIndex=2");
 
             getResponse2.EnsureSuccessStatusCode();
             var returnedParkingLots2 = await DeserializeResponseBodyAsync<List<ParkingLotDto>>(getResponse2);
-            Assert.Single(returnedParkingLots2);
-            Assert.Equal(parkingLots[1], returnedParkingLots2[0]);
+            Assert.Empty(returnedParkingLots2);
         }
 
         [Fact]

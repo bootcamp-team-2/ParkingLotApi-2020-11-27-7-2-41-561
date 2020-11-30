@@ -35,10 +35,10 @@ namespace ParkingLotApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ParkingLotDto>>> GetAllAsync(int? limit, int? offset)
+        public async Task<ActionResult<IEnumerable<ParkingLotDto>>> GetAllInPagesAsync(int? pageIndex)
         {
-            var searchedParkingLots = await this.parkingLotService.GetAllAsync(limit, offset);
-            return Ok(searchedParkingLots);
+            var pagedParkingLots = await this.parkingLotService.GetAllInPagesAsync(pageIndex);
+            return Ok(pagedParkingLots);
         }
 
         //[HttpGet]
@@ -60,7 +60,7 @@ namespace ParkingLotApi.Controllers
 
             if (searchedParkingLot == null)
             {
-                return NotFound();
+                return NotFound(new Dictionary<string, string>() { { "error", "the parking lot is not found" } });
             }
 
             return Ok(searchedParkingLot);
@@ -77,7 +77,7 @@ namespace ParkingLotApi.Controllers
             var parkingLotToUpdate = await this.parkingLotService.GetAsync(id);
             if (parkingLotToUpdate == null)
             {
-                return NotFound();
+                return NotFound(new Dictionary<string, string>() { { "error", "the parking lot is not found" } });
             }
 
             await this.parkingLotService.UpdateAsync(id, parkingLotUpdateDto);
@@ -90,7 +90,7 @@ namespace ParkingLotApi.Controllers
             var parkingLotToUpdate = await this.parkingLotService.GetAsync(id);
             if (parkingLotToUpdate == null)
             {
-                return NotFound();
+                return NotFound(new Dictionary<string, string>() { { "error", "the parking lot is not found" } });
             }
 
             await this.parkingLotService.DeleteAsync(id);
