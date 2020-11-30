@@ -29,7 +29,7 @@ namespace ParkingLotApi
         {
             services.AddControllers();
             services.AddSwaggerGen();
-            services.AddDbContext<ParkingLotContext>(options =>
+            services.AddDbContext<ParkingLotDbContext>(options =>
             {
                 options.UseMySql(Configuration.GetConnectionString("Default"));
             });
@@ -45,11 +45,16 @@ namespace ParkingLotApi
 
             using (var scope = app.ApplicationServices.CreateScope())
             {
-                using (var context = scope.ServiceProvider.GetService<ParkingLotContext>())
+                using (var context = scope.ServiceProvider.GetService<ParkingLotDbContext>())
                 {
                     if (context.Database.ProviderName.ToLower().Contains("mysql"))
                     {
-                         context.Database.Migrate();
+                        context.Database.Migrate();
+                    }
+                    else
+                    {
+                        context.Database.EnsureDeleted();
+                        context.Database.EnsureCreated();
                     }
                 }
             }
